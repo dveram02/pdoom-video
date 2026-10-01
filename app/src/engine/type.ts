@@ -22,6 +22,12 @@ for (const wt of [400, 600]) {
 for (const [n, f] of [['300', 'Light'], ['400', 'Regular'], ['500', 'Medium'], ['600', 'SemiBold'], ['700', 'Bold']] as const)
   DEFS.push({ family: `Plex-${n}`, file: `src/IBMPlexMono-${f}.ttf` });
 DEFS.push({ family: 'PlexItalic-400', file: 'src/IBMPlexMono-Italic.ttf' });
+// Archivo with tabular figures for numbers that count (every digit the same advance, so a counter never
+// jitters): the widths and weights the style guide uses for hero numbers
+export const ARCHIVO_NUM_WIDTHS = [875, 1000, 1125] as const;
+export const ARCHIVO_NUM_WEIGHTS = [500, 700, 900] as const;
+for (const w of ARCHIVO_NUM_WIDTHS) for (const wt of ARCHIVO_NUM_WEIGHTS)
+  DEFS.push({ family: `ArchivoNum-${w}-${wt}`, file: `Archivo-w${w}-${wt}.ttf`, features: '"tnum" 1, "lnum" 1' });
 
 /** Convenience family names. */
 export const F = {
@@ -30,6 +36,15 @@ export const F = {
     const w = nearest(ARCHIVO_WIDTHS as unknown as number[], width * 10);
     const wt = nearest(ARCHIVO_WEIGHTS as unknown as number[], weight);
     return `Archivo-${w}-${wt}`;
+  },
+  /**
+   * Archivo with tabular (fixed-advance) figures, for counters and animated numbers. Draw whole strings
+   * with fillText (the feature lives in the FontFace); layout()/glyphX() measure proportional advances.
+   */
+  num(width = 100, weight = 900): string {
+    const w = nearest(ARCHIVO_NUM_WIDTHS as unknown as number[], width * 10);
+    const wt = nearest(ARCHIVO_NUM_WEIGHTS as unknown as number[], weight);
+    return `ArchivoNum-${w}-${wt}`;
   },
   archivoItalic(width = 100, weight = 800): string {
     return `ArchivoItalic-${width < 88 ? 750 : 1000}-${weight < 600 ? 400 : 800}`;

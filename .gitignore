@@ -12,3 +12,13 @@ analysis/__pycache__/
 analysis/stems/
 analysis/work/
 analysis/qa/
+
+# video audio (narration takes, music, mixes): large binaries, kept out of git. Back them up separately
+# (or move them to Git LFS). Everything else in videos/<id>/ is small text and is committed.
+videos/**/*.wav
+videos/**/*.mp3
+videos/**/*.m4a
+videos/**/*.flac
+# raw TTS / alignment responses (may embed base64 audio)
+videos/**/*.tts.json
+videos/**/*.whisperx.json

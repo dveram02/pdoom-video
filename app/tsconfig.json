@@ -12,7 +12,10 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": { "@engine/*": ["./src/*"] }
   },
-  "include": ["src"]
+  "include": ["src", "../videos"],
+  // the P(doom) music video's scenes: kept for reference only, not part of the build
+  "exclude": ["src/scenes"]
 }

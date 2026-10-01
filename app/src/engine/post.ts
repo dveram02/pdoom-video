@@ -23,37 +23,30 @@ export interface PostParams {
   ca: number; // chromatic aberration in px at the frame edge
   grain: number; // grain amplitude (sRGB units), ~0.04-0.1
   vignette: number; // 0..1
-  hud: number; // HUD opacity multiplier (crop marks, readout)
-  /** 0..1: the crop-mark frame (1 = in place, 0 = flown out past the edges). Only the bookends use it: the opening's sheet and the outro's regenerate/loop. */
-  frame: number;
-  /** Opacity of the corner P(doom) readout — 0 by default; P(doom) is staged inside plates. */
-  pdoom: number;
-  /** 0..1: the frame is light (bone paper) — the HUD switches captions and crop marks to ink. */
+  hud: number; // HUD opacity multiplier (source line, hypothetical note)
+  /** 0..1: the frame is light (a paper scene) — the HUD draws in ink instead of bone. */
   paper: number;
   fade: number; // fade to black 0..1
   flash: number; // additive bone-white flash 0..1+
   shake: [number, number]; // frame offset in px
-  zoom: number; // frame zoom (1 = none), for punch-ins on hits
+  zoom: number; // frame zoom (1 = none), for punch-ins
   invert: number; // 0..1 invert (ink <-> bone), applied before grain
-  /** Replace the HUD P(doom) digits (e.g. 'NaN'). */
-  pdoomText?: string;
-  /** 0..1 glitch the HUD readout. */
-  hudCorruption?: number;
 }
 
+// The finance preset (docs/FINANCE_STYLE_GUIDE.md §8): crisp type and charts. Bloom only catches gold
+// highlights pushed past the threshold; no halation or chromatic aberration; grain just enough to keep dark
+// gradients from banding. A scene can still override any of these for a moment.
 export const DEFAULT_POST: PostParams = {
   exposure: 1,
-  bloom: 0.55,
-  bloomThreshold: 0.85,
-  bloomKnee: 0.5,
-  bloomRadius: 0.75,
-  halation: 0.25,
-  ca: 1.2,
-  grain: 0.055,
-  vignette: 0.35,
+  bloom: 0.15,
+  bloomThreshold: 0.9,
+  bloomKnee: 0.4,
+  bloomRadius: 0.7,
+  halation: 0,
+  ca: 0,
+  grain: 0.008,
+  vignette: 0.15,
   hud: 1,
-  frame: 0,
-  pdoom: 0,
   paper: 0,
   fade: 0,
   flash: 0,

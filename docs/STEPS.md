@@ -124,60 +124,55 @@ Have Claude draft it, then you edit it. Lock in the following:
 
 ---
 
-## Part C — Generalize the engine (Claude Code, one PR)
+## Part C — Generalize the engine ✅ DONE (2026-10-01; one item waiting on you, see C3)
 
-Prompt Claude to *read first and change nothing*. The ChatGPT "first prompt" works as-is.
-Then have it implement the following.
+The per-video folder format and the timing tools are documented in **`videos/README.md`**. The engine API is in `docs/ENGINE.md`.
 
-### C1. Add a video project folder and loader
-```
-videos/
-  000-prototype-100-a-month/
-    video.json        # { title, audio: "narration.wav", music?, fps, ... }
-    script.md
-    sources.json
-    assumptions.json  # every number used in the video (single source of truth)
-    narration.wav
-    narration.json    # word timestamps (lyrics.json format)
-    storyboard.md
-    timeline.ts       # this video's edit
-    mix.wav           # generated: narration + music + sfx (F2)
-```
-- [ ] Select the video with `?video=000-prototype-100-a-month` in the preview and `--video <id>` in `render.ts`.
-- [ ] Remove the hard-coded `audio/pdoom.mp3` from `main.ts` and `render.ts`.
-      `Engine.duration` should come from the narration (plus an outro tail).
-- [ ] Serve `videos/` through Vite. The `vite.config.ts` `fs.allow` already permits the repo root.
-      Use a Vite alias or middleware rather than more symlinks.
+### C1. Video projects ✅
+- [x] `videos/<id>/` holds `video.json`, `script.md`, `assumptions.json`, `sources.json`, `narration.json`,
+      `timeline.ts`, plus the optional `audio.json`, `storyboard.md`, `captions.srt` and `chapters.txt`.
+      Loader: `app/src/engine/video.ts`.
+- [x] `?video=<id>` in the preview, `--video <id>` in every `render.ts` mode. The default is the first video
+      (ids starting with `_` sort last).
+- [x] No hard-coded song anywhere. The preview plays and `render.ts` muxes `video.json`'s `mix` (else `audio`). With
+      no audio, the preview runs on a wall clock and the render is silent. The duration is the last word + `tail` (3 s), or the audio length.
+- [x] Vite serves `/videos/*` from the repo root (byte ranges for seeking). `@engine/*` alias for video timelines.
+- [x] Test video **`videos/_engine-test`** exercises it all (estimated timings, phrase cues, assumptions → counter + chart, HUD).
 
-### C2. Replace "song" concepts with "narration" concepts
-- [ ] `Lyrics` loads `narration.json`; add a `Narration` alias.
-- [ ] Make `AudioData` beats and sections **optional**. Generate a minimal `audio.json` for each video:
-      duration plus an RMS/voice envelope. Scenes like a "speaking" pulse can still use `f.a.vocal`.
-      Leave `beat`/`bar` at 0 when there's no grid.
-- [ ] Timeline helpers: `at('phrase')` → the start of the phrase's first word; `atWord('phrase', i)`; `after('phrase')`.
-      Then edits look like `E('growth', 'LineChart', at('If you invested'), at('Now compare'))`.
+### C2. Narration instead of lyrics ✅
+- [x] `Narration` (`src/engine/narration.ts`, was `lyrics.ts`): same JSON shape, plus `phrase('five hundred dollars')`
+      (whole words, across sentences), `chapters` (from `## headings`), `chapter('title')`.
+- [x] `AudioData`: the beat grid, sections and onsets are optional. `analyze` writes duration + an RMS/voice envelope.
+- [x] Timeline kit: `E(id, component, start, end, params, {note, source})`, `at('phrase', {lead})`, `after('phrase', {pad})`,
+      `phrase()`, `sentence()`. Cues throw if a phrase disappears from the script.
+- [x] **`scripts/narration.ts`**: `estimate` (from script.md, no audio), `from-elevenlabs` (+ `--audio-out`),
+      `from-whisperx` (interpolates untimed words), `analyze`, `srt` (captions), `chapters` (YouTube list + checks).
 
-### C3. Remove the P(doom) layer from the engine
-- [ ] The HUD no longer depends on `PDoom`. Replace the HUD with an optional
-      **source/citation line** and a **disclaimer chip** ("Hypothetical example · not financial advice").
-- [ ] Move the P(doom) scenes out of the build (`scenes/_pdoom/` or delete them on this branch) and keep
-      them on `main` for reference. The ChatGPT advice "don't delete immediately" is right; using a branch handles it.
-- [ ] Remove `audio/pdoom.mp3`, `lyrics/` and `data/lyrics.json` from this branch. Their license is
-      **not** MIT, and they must never end up in a video you publish.
+### C3. P(doom) layer out of the engine ✅ (file removal waiting on you)
+- [x] HUD = the small print only: `note` (hypothetical/assumptions) + `SOURCE: …`, bottom-left on the title-safe margin.
+      The P(doom) readout, crop marks and captions are gone. `post.paper` switches it to ink.
+- [x] P(doom) scenes are excluded from the build and the typecheck (`tsconfig` `exclude`). New components live in `src/components/`.
+      `plates` mode was removed from `render.ts`, and `window.__pdoom` became `window.__engine`.
+- [ ] **Delete the leftovers** (auto mode blocked the bulk delete, so this needs your go-ahead): `audio/pdoom.mp3`, `lyrics/`,
+      `data/`, `app/src/scenes/`, `app/public/plates/`, `app/plates.json`, `app/public/audio`, `app/public/data`.
+      Everything stays on `main` (`git show main:<path>`).
 
-### C4. Finance post-processing preset
-- [ ] New `DEFAULT_POST` values: grain ~0–0.01, `ca: 0`, `halation: 0`, vignette ~0.15, bloom low,
-      HUD crop marks off.
-- [ ] Change `render.ts`: replace `-tune grain` with `-tune animation`, or make it a flag.
-      This gives smaller files and sharper text.
+### C4. Finance look ✅
+- [x] Palette = style guide tokens (`palette.ts`, GLSL `C_GOLD`, `C_GAIN`, …, `SERIES` order). `heat()` is now a gold ramp.
+- [x] `DEFAULT_POST`: bloom 0.15 (threshold 0.9), halation 0, CA 0, grain 0.008, vignette 0.15.
+- [x] `render.ts`: `-tune animation` by default (`--tune grain` to override). Audio is padded so the tail isn't cut.
+- [x] `F.num(width, weight)`: Archivo with tabular figures for counters (no digit jitter).
 
-### C5. Finance math module (`src/finance/`)
-- [ ] `futureValue`, `annuityFV` (monthly contributions), `amortization`, `inflationAdjust`, `cagr`,
-      plus yearly series generators for charts.
-- [ ] Number formatters that follow the style guide.
-- [ ] **Unit tests** (`bun test`) covering the known values above, e.g. $500/mo at 8% for 10y gives $91,473.
-- [ ] Scenes read their parameters from `assumptions.json` and call this module, so the script, the counters
-      and the chart all show the same number.
+### C5. Finance math ✅
+- [x] `src/finance/money.ts`: `futureValue`, `annuityFV`, `growthSeries`/`yearly`/`valueAt`, `loanPayment`, `amortize`,
+      `minimumPayment`, `realValue`, `cagr`, `doublingYears`, `ruleOf72`.
+- [x] `src/finance/format.ts`: `usd` (exact/compact/signed, U+2212 minus), `pct`, `pts`, `num`, `mult`, `years`.
+- [x] `app/test/finance.test.ts`: 13 tests and 83 checks against independently computed values (`bun test`).
+
+### Measured
+- The engine-test scene (Canvas2D chart + counter) renders at about **9 fps** at 1080p with 1 sample (export pipeline,
+  RTX 3060). Part D should check performance, since that's slower than expected for a flat scene (a likely cause is redrawing the
+  whole chart path every frame, plus the Layer2D upload).
 
 ---
 
@@ -290,5 +285,5 @@ Suggested first full-length topics, in order of visual simplicity: *How Compound
 1. ~~**A1–A4**: fix the git layout, symlinks and GPU flag, then smoke-test.~~ ✅ Done and committed on `finance-channel`.
 2. ~~**B1–B2**: `CLAUDE.md` and `FINANCE_STYLE_GUIDE.md`.~~ ✅ Drafted. Review and edit them.
 3. ~~**B3**: decide on your voice and timestamp tool.~~ ✅ US audience. Both ElevenLabs and own voice are supported.
-4. **C1–C5**: engine generalization, as one reviewed change.
+4. ~~**C1–C5**: engine generalization.~~ ✅ Done. Remaining: approve deleting the P(doom) leftovers (C3).
 5. **D**: the first 5 components → **E**: the 60-second prototype.

@@ -1,28 +1,30 @@
-# Engine guide (for scene authors)
+# Engine guide (for component authors)
 
-The video is a web app (`app/`, TypeScript + three.js, run with bun + Vite) that renders any song time `t` deterministically at 1920×1080 (or at 2× that, 3840×2160, with `?scale=2`; see "Output scale" below). The same code drives the live preview and the offline 60 fps export.
+The engine is a web app (`app/`, TypeScript + three.js, run with bun + Vite) that renders any video time `t` of one video project (`videos/<id>/`, see `videos/README.md`) deterministically at 1920×1080 (or at 2× that, 3840×2160, with `?scale=2`; see "Output scale" below). The same code drives the live preview and the offline 60 fps export.
 
 ## Running things
 
-- Dev server (probably already running): `cd app && bunx vite --port 5173`. Preview: http://localhost:5173/?t=23.0 (space = play/pause, ←/→ = ±1 s, shift = ±5 s, `,`/`.` = ±1 frame, `[`/`]` = previous/next timeline entry, `l` = loop the current entry, `h` = hide the UI).
-- Stills (the main way to check your work — then LOOK at the PNGs with the Read tool): `cd app && bun scripts/render.ts stills --t 12.5,13.0,14.2 --only open --out ../out/wip/open`
-- Contact sheet of a time range: `bun scripts/render.ts sheet --from 1.5 --to 9 --n 16 --cols 4 --only open --out ../out/wip/open/sheet.png`
-- Short video clip (to judge motion: extract frames with ffmpeg, or just trust the math): `bun scripts/render.ts video --from 20 --to 25 --only hook --out ../out/wip/hook.mp4 --preset veryfast`
-- `--only a,b` loads only those timeline entries (fast, and isolates you from other people's broken scenes). Without a matching entry nothing renders (black), so the entry must exist in `src/timeline.ts`.
-- Typecheck just your files: `bunx tsc --noEmit -p tsconfig.json 2>&1 | grep scenes/yourscene`.
+- Dev server (probably already running): `cd app && bunx vite --port 5173`. Preview: http://localhost:5173/?video=<id>&t=23.0 (space = play/pause, ←/→ = ±1 s, shift = ±5 s, `,`/`.` = ±1 frame, `[`/`]` = previous/next timeline entry, `l` = loop the current entry, `h` = hide the UI).
+- Stills (the main way to check your work — then LOOK at the PNGs with the Read tool): `cd app && bun scripts/render.ts stills --video <id> --t 12.5,13.0,14.2 --only intro --out ../out/wip/intro`. Every mode takes `--video <id>` (default: the first video).
+- Contact sheet of a time range: `bun scripts/render.ts sheet --video <id> --from 1.5 --to 9 --n 16 --cols 4 --only intro --out ../out/wip/intro/sheet.png`
+- Short video clip (to judge motion: extract frames with ffmpeg, or just trust the math): `bun scripts/render.ts video --video <id> --from 20 --to 25 --only growth --out ../out/wip/growth.mp4 --preset veryfast` (muxes the video's `mix`/`audio` from `video.json`; silent if it has none)
+- `--only a,b` loads only those timeline entries (fast, and isolates you from broken components). Without a matching entry nothing renders (black), so the entry must exist in the video's `timeline.ts`.
+- Typecheck just your files: `bunx tsc --noEmit -p tsconfig.json 2>&1 | grep components/yourcomponent` (`bun run typecheck` checks everything, `bun test` runs the finance tests).
 - The render script prints `SCENE ERRORS` and browser console errors — read them.
 - 4K: add `--scale 2` to any mode (`stills` then saves full-resolution 3840×2160 PNGs). Check your scene at both scales: downscaled, the 4K frame should look like the 1080p one, only sharper.
-- Renders while files are being edited: run a server without live reload (`PDOOM_NO_HMR=1 bunx vite --port 5190`) and pass `--url http://localhost:5190`; a live-reloading server reloads the page mid-render. The private server that `render.ts` starts when none is reachable already runs without it.
+- Renders while files are being edited: run a server without live reload (`FVE_NO_HMR=1 bunx vite --port 5190`) and pass `--url http://localhost:5190`; a live-reloading server reloads the page mid-render. The private server that `render.ts` starts when none is reachable already runs without it.
 
 ## Data
 
-- `lyrics` (`src/engine/lyrics.ts`): `lines[]` with `text,start,end,words[]`, each word `{w,start,end}` (word-level, aligned to the vocal). Find lines by content, never hard-code times: `const l = this.ctx.lyrics.get('sudden drop')` → `l.words[3].start`. Helpers: `Lyrics.wordProgress(word, t)` (0..1 sung progress), `Lyrics.lineCharProgress(line, t)` (chars sung so far — for per-glyph wipes), `lyrics.findWords('P(doom)')`.
-- `audio` (`src/engine/audio.ts`): `beats[]`, `downbeats[]`, `sections[]`, `beatAt(t)` (continuous beat index), `barAt(t)`, `timeOfBeat(i)`, `nearestBeat(t)`, `events('kick'|'snare'|'hat'|'vocal', t0, t1)`, `env(name, t)` for `rms|low|mid|high|vocal|drums|bass|other` (0..1), `hit(kind, t, halfLife)` decaying pulses.
-- Every `Frame` already carries `f.a` = `{rms,low,mid,high,vocal,drums,bass,other,kick,snare,hat,vonset}` and `f.beat,f.bar,f.beatPhase,f.barPhase`.
+- `video` (`src/engine/video.ts`, `ctx.video`): `id`, `meta` (video.json), **`assumptions`** (assumptions.json: the numbers to compute from), `sources` (sources.json), `duration`.
+- `narration` (`src/engine/narration.ts`, `ctx.narration`): `lines[]` (one per sentence) with `text,start,end,words[]`, each word `{w,start,end}`, plus `chapters[]` (from the `## headings` in script.md). Anchor to what is said, never hard-code times: `narration.phrase('five hundred dollars').start` (whole words in order, ignoring case and punctuation; across sentences), `narration.get('compound interest')` (the sentence containing it), `narration.chapter('The time advantage').start`. Helpers: `Narration.wordProgress(word, t)` (0..1 spoken progress), `Narration.lineCharProgress(line, t)`, `findWords('$500')`, `lineAt(t)`, `lastWord(t)`.
+- `audio` (`src/engine/audio.ts`, `ctx.audio`): `env('rms'|'vocal', t)` (0..1 loudness of the voice, from `narration.ts analyze`; 0 when the video has no audio.json). The beat grid (`beats`, `beatAt`, ...), sections and onsets are empty for narration (kept from the music-video origin).
+- Every `Frame` carries `f.a` (`rms`, `vocal` ...; the music fields read 0) and `f.beat`/`f.bar` (0 without a beat grid).
+- Finance maths and formatting (`src/finance/`): `growthSeries`, `annuityFV`, `futureValue`, `valueAt` (a series at a fractional year: what a counter shows while a line draws), `loanPayment`, `amortize`, `minimumPayment`, `realValue`, `cagr`, `doublingYears`; `usd(v, {compact, sign, cents})`, `pct`, `pts`, `num`, `mult`, `years`. **Compute every number from `ctx.video.assumptions`; never type a result into a scene.**
 
 ## Writing a scene
 
-One file `app/src/scenes/<name>.ts`, default-exporting a class extending `Scene` (`src/engine/scene.ts`):
+One file `app/src/components/<name>.ts`, default-exporting a class extending `Scene` (`src/engine/scene.ts`). Components are reusable and parameterised (`ctx.params`); a video's `timeline.ts` places them (`E(id, '<name>', start, end, params)`):
 
 ```ts
 import * as THREE from 'three';
@@ -34,7 +36,7 @@ export default class MyScene extends Scene {
   text = new Layer2D();
   async init() { /* build geometry, precompute text outlines, etc. */ }
   render(f: Frame, out: THREE.WebGLRenderTarget) {
-    const { renderer, comp, lyrics } = this.ctx;
+    const { renderer, comp, narration, video } = this.ctx;
     this.bg.u.t!.value = f.t;
     this.bg.render(renderer, out);            // fullscreen shader → out (overwrites)
     const c = this.text.ctx; this.text.clear(); /* draw with Canvas2D */
@@ -47,12 +49,12 @@ export default class MyScene extends Scene {
 Rules:
 
 - **Deterministic**: output must be a pure function of `f.t` (and seeded randomness: `mulberry32(seed)`, `hash(...)`). Never use `Math.random()`, `Date.now()` or `performance.now()` for visuals. The export averages many sub-frames per frame, in any order (see "Motion blur and sampling"). If you need simulation state (particles, feedback buffers), set `stateful = true`, reset in `reset()`, integrate with `f.dt`, and the engine will fast-forward after seeks; such a scene can only be exported with a fixed `--samples`.
-- `render()` must fully overwrite `out` (a HalfFloat linear-HDR target). Colours are **linear**; values > ~0.85 bloom. Use palette constants (`C_INK`, `C_BONE`, `C_SIGNAL`… in GLSL; `LIN.signal` in TS for GL; `rgba('signal', a)` for Canvas2D).
+- `render()` must fully overwrite `out` (a HalfFloat linear-HDR target). Colours are **linear**; values > ~0.85 bloom. Use the palette tokens of `docs/FINANCE_STYLE_GUIDE.md` §2 (`C_INK`, `C_BONE`, `C_GOLD`, `C_GAIN`... in GLSL; `LIN.gold` in TS for GL; `rgba('gold', a)` for Canvas2D; `SERIES` is the fixed series order). Only gold highlights should exceed ~0.9 linear (bloom).
 - `ctx.params` holds the timeline entry's params (one module can serve several entries); `ctx.start/ctx.end` its window; `f.lt`/`f.p` local time/progress.
 - Transitions: by default the engine crossfades overlapping entries. For custom transitions set `handlesTransition = true` and composite `f.under` (the previous scene's frame) yourself using `f.tin` (0→1 over the overlap). Most cuts should be hard cuts on downbeats (no overlap) — that's the default when windows touch.
-- Post overrides you can return: `exposure, bloom, bloomThreshold, bloomKnee, bloomRadius, halation, ca, grain, vignette, hud (HUD opacity), fade, flash, shake:[x,y], zoom, invert, pdoomText, hudCorruption`. Defaults in `src/engine/post.ts`.
+- Post overrides you can return: `exposure, bloom, bloomThreshold, bloomKnee, bloomRadius, halation, ca, grain, vignette, hud (HUD opacity), paper (light scene: HUD in ink), fade, flash, shake:[x,y], zoom, invert`. Defaults (the finance preset: no halation or CA, minimal grain) in `src/engine/post.ts`.
 - Performance: aim for < 25 ms/frame. Canvas2D layers cost ~2–4 ms to upload each; don't use more than 2–3 per scene. Precompute in `init()`.
-- Don't edit files outside your scene files (and your own helper files named `scenes/<name>-*.ts`). Engine changes: ask the lead (report in your final message what you'd need). Do not edit `src/timeline.ts`.
+- Keep component helpers next to the component (`components/<name>-*.ts`), or in a shared module when two components need them.
 
 ## Toolbox
 
@@ -65,10 +67,11 @@ Rules:
 ## Typography
 
 - Proportional text gets the font's kerning: whole strings through Canvas2D get it for free; glyph-by-glyph drawing must use `layout()` / `glyphX()`. Adjacent runs in different fonts or sizes have no kerning between them: set that gap by eye.
-- Lyrics come with typographic punctuation (`don’t`, `’cause`, `“Just`): `Word.w` and `Line.text` go through `smart()`; `lyrics.get()` matches straight or curly quotes. Hardcoded display strings use ’ “ ” … – — × − too. Mono text (IBM Plex Mono) is the UI/terminal voice and keeps typewriter quotes (`plain()` for a lyric shown as typed input).
+- Narration text comes with typographic punctuation (`don’t`, `“Just`): `Word.w` and `Line.text` go through `smart()`; `narration.get()` matches straight or curly quotes. Hardcoded display strings use ’ “ ” … – — × − too. Mono text (IBM Plex Mono) keeps typewriter quotes (`plain()`).
+- **Numbers that count** use `F.num(width, weight)` (Archivo with tabular figures, drawn with `fillText`) or Plex Mono, so the digits don't jitter. Format them with `src/finance/format.ts`.
 - No outlined or haloed type.
 - `util.ts`: `clamp, lerp, remap, smoothstep, ease.*, prog(x,a,b,ease), keys(t, [[t,v,ease],...]), springStep, pulse, mulberry32, hash, noise1/2/3, fbm1/2, polylineLengths, pointAtLength, window01`.
-- `hud.ts`: the global HUD (crop marks; optional captions from timeline entries, unused since revision 2; the bottom-left P(doom) readout is OFF unless a scene returns `post.pdoom > 0`). P(doom) is staged inside plates: `new PDoom(lyrics).value(t)`, `formatPDoom(v)`, and `drawReadout(ctx2d, x, y, v, {scale})` to draw the instrument anywhere. `PDoom.value(t)` is available as `engine.hud.pdoom` — if you need the value in a scene, recompute with `new PDoom(this.ctx.lyrics).value(t)`.
+- `hud.ts`: the global HUD: the small print of the timeline entry on screen (`note` = the hypothetical/assumption line, `source` = `SOURCE: ...`), bottom-left on the title-safe margin (`SAFE` = 96 px). Hide it with `post.hud = 0`; `post.paper = 1` draws it in ink.
 
 ## Output scale (4K)
 
@@ -94,10 +97,10 @@ What this asks of scenes:
 - Sub-frames are rendered out of time order and in any number: a scene's output must depend on `f.t` only. `stateful` scenes can't be sampled adaptively (the engine refuses); nothing may count `render()` calls.
 - Per-frame flicker and jitter keyed to 60 fps must use `frameIdx(t)` (`util.ts`), not `Math.floor(t * 60)`. `frameIdx` is constant over the frame's shutter; `floor` switches at the frame's own time and double-exposes two states in every frame.
 - Noise that changes with continuous `t` (a hash seeded by time) is resampled in every sub-frame: it averages out, but slowly, and makes the adaptive sampler work harder. Seed it with `frameIdx(t)` unless it is meant to smooth out.
-- A spark emitter whose rate varies over time passes the rate as a function of the birth time, with its maximum (`sparkParticles(..., { rate: (tb) => ..., rateMax })`). A rate read at the current `t` re-times every particle from one sub-frame to the next.
+- An emitter whose rate varies over time passes the rate as a function of the birth time: a rate read at the current `t` re-times every particle from one sub-frame to the next.
 - Shaders that supersample internally (4 rotated-grid taps) take `ssTap: SS_TAP` and `${SS_TAP_GLSL}` and loop `for (int k = ssK0(); k < ssK1(); k++) ... rgss(k)`, weighting by `ssWeight()`. The engine then hands each sub-frame one tap, cycling them (every set is a multiple of 4), which averages to the same image for a quarter of the cost. In the preview and single-sample stills they take all four.
 - Post parameters (shake, flash, zoom, fades, the HUD mode) are read at one point of the shutter, 1/8 of it after the frame's time (where the video was tuned, and a point every sample set includes); the HUD, grain and dither are drawn once per frame.
 
-## Shared motifs (`app/src/scenes/_motifs.ts`)
+## Reference: the P(doom) scenes
 
-Use these so recurring motifs look identical across plates: `sparkHead(lineBatch, x, y, t, scale, intensity)` + `sparkParticles(lineBatch, t, headAt, opts)` (the spark, drawn with a 2D additive `LineBatch`), `sparkHead2D` (Canvas2D fallback), and the mask: `drawMask2D(ctx, x, y, R, rot)`, `MASK` geometry constants and `GLSL_MASK` (`sdMaskInk(p)` in mask units, y down). Read-only for scene agents; ask the lead for changes.
+The original music video's scenes (`app/src/scenes/`, excluded from the build and the typecheck) and its treatment (`docs/TREATMENT.md`) are reference material for techniques: odometer counters (`ascent-odo.ts`), Gantt/timeline layouts (`leftturn-gantt.ts`), dense typography (`dense-press.ts`), engraving shaders, `handlesTransition` hand-offs. Reuse techniques, never their content or look.

@@ -9,9 +9,9 @@ const MIME: Record<string, string> = {
 };
 
 /**
- * The repo root holds audio/ and data/; serve them next to the app. (public/audio and public/data are
- * symlinks to them in git, but a Windows checkout without symlink support turns those into plain text
- * files, so they are served from the root directly.) Byte ranges are supported so <audio> can seek.
+ * The repo root holds videos/ (one folder per video: video.json, narration.json, audio, assumptions…); serve
+ * it next to the app straight from the root (no symlinks: they don't survive a Windows checkout). Byte ranges
+ * are supported so <audio> can seek.
  */
 function rootAssets(dirs: string[]): Plugin {
   return {
@@ -47,9 +47,9 @@ function rootAssets(dirs: string[]): Plugin {
 export default defineConfig({
   root: '.',
   publicDir: 'public',
-  plugins: [rootAssets(['audio', 'data'])],
-  // PDOOM_NO_HMR=1: no live reload (export renders must not reload mid-run when a file changes)
-  server: { port: 5173, strictPort: false, hmr: process.env.PDOOM_NO_HMR ? false : undefined, fs: { allow: [ROOT] } },
-  resolve: { alias: { '@root': ROOT } },
+  plugins: [rootAssets(['videos'])],
+  // FVE_NO_HMR=1: no live reload (export renders must not reload mid-run when a file changes)
+  server: { port: 5173, strictPort: false, hmr: process.env.FVE_NO_HMR ? false : undefined, fs: { allow: [ROOT] } },
+  resolve: { alias: { '@root': ROOT, '@engine': path.join(ROOT, 'app/src') } },
   build: { target: 'esnext', assetsInlineLimit: 0 },
 });

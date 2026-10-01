@@ -1,0 +1,313 @@
+{
+ "meta": {
+  "source": "estimate",
+  "wpm": 155
+ },
+ "chapters": [
+  {
+   "title": "The setup",
+   "start": 0.6
+  },
+  {
+   "title": "The growth",
+   "start": 8.659
+  }
+ ],
+ "lines": [
+  {
+   "text": "This is the engine test.",
+   "start": 0.6,
+   "end": 2.206,
+   "words": [
+    {
+     "w": "This",
+     "start": 0.6,
+     "end": 0.903
+    },
+    {
+     "w": "is",
+     "start": 0.929,
+     "end": 1.143
+    },
+    {
+     "w": "the",
+     "start": 1.162,
+     "end": 1.389
+    },
+    {
+     "w": "engine",
+     "start": 1.409,
+     "end": 1.863
+    },
+    {
+     "w": "test.",
+     "start": 1.903,
+     "end": 2.206
+    }
+   ]
+  },
+  {
+   "text": "It checks that the narration timings, the cues and the numbers all line up.",
+   "start": 2.532,
+   "end": 7.741,
+   "words": [
+    {
+     "w": "It",
+     "start": 2.532,
+     "end": 2.746
+    },
+    {
+     "w": "checks",
+     "start": 2.765,
+     "end": 3.219
+    },
+    {
+     "w": "that",
+     "start": 3.259,
+     "end": 3.562
+    },
+    {
+     "w": "the",
+     "start": 3.588,
+     "end": 3.816
+    },
+    {
+     "w": "narration",
+     "start": 3.835,
+     "end": 4.517
+    },
+    {
+     "w": "timings,",
+     "start": 4.577,
+     "end": 5.107
+    },
+    {
+     "w": "the",
+     "start": 5.303,
+     "end": 5.53
+    },
+    {
+     "w": "cues",
+     "start": 5.55,
+     "end": 5.853
+    },
+    {
+     "w": "and",
+     "start": 5.88,
+     "end": 6.107
+    },
+    {
+     "w": "the",
+     "start": 6.127,
+     "end": 6.354
+    },
+    {
+     "w": "numbers",
+     "start": 6.374,
+     "end": 6.904
+    },
+    {
+     "w": "all",
+     "start": 6.95,
+     "end": 7.178
+    },
+    {
+     "w": "line",
+     "start": 7.197,
+     "end": 7.501
+    },
+    {
+     "w": "up.",
+     "start": 7.527,
+     "end": 7.741
+    }
+   ]
+  },
+  {
+   "text": "Imagine putting one hundred dollars into an index fund every month.",
+   "start": 8.659,
+   "end": 13.306,
+   "words": [
+    {
+     "w": "Imagine",
+     "start": 8.659,
+     "end": 9.19
+    },
+    {
+     "w": "putting",
+     "start": 9.236,
+     "end": 9.766
+    },
+    {
+     "w": "one",
+     "start": 9.812,
+     "end": 10.039
+    },
+    {
+     "w": "hundred",
+     "start": 10.059,
+     "end": 10.59
+    },
+    {
+     "w": "dollars",
+     "start": 10.636,
+     "end": 11.166
+    },
+    {
+     "w": "into",
+     "start": 11.212,
+     "end": 11.515
+    },
+    {
+     "w": "an",
+     "start": 11.542,
+     "end": 11.755
+    },
+    {
+     "w": "index",
+     "start": 11.774,
+     "end": 12.153
+    },
+    {
+     "w": "fund",
+     "start": 12.186,
+     "end": 12.489
+    },
+    {
+     "w": "every",
+     "start": 12.515,
+     "end": 12.894
+    },
+    {
+     "w": "month.",
+     "start": 12.927,
+     "end": 13.306
+    }
+   ]
+  },
+  {
+   "text": "After thirty years, you would have put in thirty-six thousand dollars.",
+   "start": 13.639,
+   "end": 18.505,
+   "words": [
+    {
+     "w": "After",
+     "start": 13.639,
+     "end": 14.018
+    },
+    {
+     "w": "thirty",
+     "start": 14.051,
+     "end": 14.505
+    },
+    {
+     "w": "years,",
+     "start": 14.545,
+     "end": 14.924
+    },
+    {
+     "w": "you",
+     "start": 15.107,
+     "end": 15.334
+    },
+    {
+     "w": "would",
+     "start": 15.354,
+     "end": 15.733
+    },
+    {
+     "w": "have",
+     "start": 15.766,
+     "end": 16.069
+    },
+    {
+     "w": "put",
+     "start": 16.095,
+     "end": 16.322
+    },
+    {
+     "w": "in",
+     "start": 16.342,
+     "end": 16.556
+    },
+    {
+     "w": "thirty-six",
+     "start": 16.574,
+     "end": 17.256
+    },
+    {
+     "w": "thousand",
+     "start": 17.316,
+     "end": 17.922
+    },
+    {
+     "w": "dollars.",
+     "start": 17.974,
+     "end": 18.505
+    }
+   ]
+  },
+  {
+   "text": "The account, though, would be worth about one hundred forty-nine thousand.",
+   "start": 18.851,
+   "end": 24.107,
+   "words": [
+    {
+     "w": "The",
+     "start": 18.851,
+     "end": 19.078
+    },
+    {
+     "w": "account,",
+     "start": 19.098,
+     "end": 19.628
+    },
+    {
+     "w": "though,",
+     "start": 19.825,
+     "end": 20.279
+    },
+    {
+     "w": "would",
+     "start": 20.469,
+     "end": 20.848
+    },
+    {
+     "w": "be",
+     "start": 20.881,
+     "end": 21.094
+    },
+    {
+     "w": "worth",
+     "start": 21.113,
+     "end": 21.492
+    },
+    {
+     "w": "about",
+     "start": 21.525,
+     "end": 21.904
+    },
+    {
+     "w": "one",
+     "start": 21.936,
+     "end": 22.164
+    },
+    {
+     "w": "hundred",
+     "start": 22.184,
+     "end": 22.714
+    },
+    {
+     "w": "forty-nine",
+     "start": 22.76,
+     "end": 23.442
+    },
+    {
+     "w": "thousand.",
+     "start": 23.501,
+     "end": 24.107
+    }
+   ]
+  }
+ ]
+}

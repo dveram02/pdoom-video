@@ -20,10 +20,14 @@ const vec3 C_INK2 = ${v3(LIN.ink2)};
 const vec3 C_GRAPHITE = ${v3(LIN.graphite)};
 const vec3 C_ASH = ${v3(LIN.ash)};
 const vec3 C_BONE = ${v3(LIN.bone)};
-const vec3 C_SIGNAL = ${v3(LIN.signal)};
-const vec3 C_EMBER = ${v3(LIN.ember)};
-const vec3 C_BLOOD = ${v3(LIN.blood)};
-const vec3 C_ACID = ${v3(LIN.acid)};
+const vec3 C_RULE = ${v3(LIN.rule)};
+const vec3 C_PAPER = ${v3(LIN.paper)};
+const vec3 C_GOLD = ${v3(LIN.gold)};
+const vec3 C_GOLDHI = ${v3(LIN.goldHi)};
+const vec3 C_BLUE = ${v3(LIN.blue)};
+const vec3 C_ROSE = ${v3(LIN.rose)};
+const vec3 C_GAIN = ${v3(LIN.gain)};
+const vec3 C_LOSS = ${v3(LIN.loss)};
 
 /** Rotated-grid supersample offset k (0..3) within one pixel, in pixels. See SS_TAP (gl.ts). */
 vec2 rgss(int k) { return k == 0 ? vec2(0.125, -0.375) : k == 1 ? vec2(0.375, 0.125) : k == 2 ? vec2(-0.125, 0.375) : vec2(-0.375, -0.125); }
@@ -153,12 +157,11 @@ float engrave(vec2 uv, float darkness, float freq, float angle) {
 // ---- colour ----
 vec3 toSRGB(vec3 c) { return mix(12.92 * c, 1.055 * pow(max(c, 0.0), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); }
 vec3 toLinear(vec3 c) { return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c)); }
-/** Signal-orange heat ramp: 0 = ink, 0.5 = signal, 1 = white-hot. */
+/** Gold heat ramp for glow cores: 0 = ink, 0.5 = gold, 0.8 = gold highlight, 1 = warm white. */
 vec3 heat(float x) {
   x = sat(x);
-  vec3 c = mix(C_INK, C_BLOOD, smoothstep(0.0, 0.3, x));
-  c = mix(c, C_SIGNAL, smoothstep(0.25, 0.55, x));
-  c = mix(c, C_EMBER, smoothstep(0.55, 0.8, x));
-  return mix(c, vec3(1.0, 0.93, 0.85), smoothstep(0.8, 1.0, x));
+  vec3 c = mix(C_INK, C_GOLD, smoothstep(0.0, 0.5, x));
+  c = mix(c, C_GOLDHI, smoothstep(0.45, 0.8, x));
+  return mix(c, vec3(1.0, 0.95, 0.86), smoothstep(0.8, 1.0, x));
 }
 `;

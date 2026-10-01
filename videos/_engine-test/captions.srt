@@ -1,0 +1,23 @@
+1
+00:00:00,600 --> 00:00:02,206
+This is the engine test.
+
+2
+00:00:02,532 --> 00:00:07,741
+It checks that the narration timings, the
+cues and the numbers all line up.
+
+3
+00:00:08,659 --> 00:00:13,306
+Imagine putting one hundred dollars
+into an index fund every month.
+
+4
+00:00:13,639 --> 00:00:18,505
+After thirty years, you would have put
+in thirty-six thousand dollars.
+
+5
+00:00:18,851 --> 00:00:24,107
+The account, though, would be worth about
+one hundred forty-nine thousand.

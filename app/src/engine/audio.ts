@@ -1,14 +1,16 @@
-// Music analysis (data/audio.json) sampled at arbitrary song time.
+// Audio analysis (videos/<id>/audio.json, from `bun scripts/narration.ts analyze`) sampled at any time.
+// For narration only `duration` and the `rms`/`vocal` envelopes are filled in; the beat grid, sections and
+// onsets (from the music-video origin) are optional and empty unless a video brings them.
 
 export interface AudioJSON {
   duration: number;
-  bpm: number;
-  fps: number;
-  beats: number[];
-  downbeats: number[];
-  sections: { name: string; start: number; end: number }[];
-  features: Record<string, number[]>;
-  onsets: Record<string, [number, number][]>;
+  bpm?: number;
+  fps?: number;
+  beats?: number[];
+  downbeats?: number[];
+  sections?: { name: string; start: number; end: number }[];
+  features?: Record<string, number[]>;
+  onsets?: Record<string, [number, number][]>;
 }
 
 export interface AudioSample {
@@ -32,22 +34,25 @@ export class AudioData {
 
   constructor(j: AudioJSON) {
     this.duration = j.duration;
-    this.bpm = j.bpm;
-    this.beats = j.beats;
-    this.downbeats = j.downbeats;
-    this.sections = j.sections;
+    this.bpm = j.bpm ?? 0;
+    this.beats = j.beats ?? [];
+    this.downbeats = j.downbeats ?? [];
+    this.sections = j.sections ?? [];
     this.fps = j.fps || 100;
     // envelopes may be nested under `features` or top-level arrays
     for (const k of FEATURES) this.feat[k] = Float32Array.from(j.features?.[k] ?? ((j as any)[k] as number[] | undefined) ?? []);
     this.onsets = j.onsets ?? {};
   }
 
-  static async load(): Promise<AudioData> {
-    for (const url of ['data/audio.json', 'data/audio.approx.json']) {
-      const r = await fetch(url);
-      if (r.ok && (r.headers.get('content-type') ?? '').includes('json')) return new AudioData(await r.json());
-    }
-    throw new Error('no audio analysis data found');
+  /** The analysis at `url`, or null when the video has none (no audio yet, or not analysed). */
+  static async load(url: string): Promise<AudioData | null> {
+    const r = await fetch(url);
+    return r.ok && (r.headers.get('content-type') ?? '').includes('json') ? new AudioData(await r.json()) : null;
+  }
+
+  /** No analysis: just a duration (envelopes read 0, no beats). */
+  static silent(duration: number): AudioData {
+    return new AudioData({ duration });
   }
 
   /** Linear-interpolated envelope value at time t. */
@@ -117,7 +122,7 @@ export class AudioData {
   timeOfBeat(i: number): number {
     const b = this.beats;
     const n = b.length;
-    const period = n > 1 ? (b[n - 1]! - b[0]!) / (n - 1) : 60 / this.bpm;
+    const period = n > 1 ? (b[n - 1]! - b[0]!) / (n - 1) : this.bpm ? 60 / this.bpm : 0;
     if (i <= 0) return (b[0] ?? 0) + i * period;
     if (i >= n - 1) return b[n - 1]! + (i - (n - 1)) * period;
     const k = Math.floor(i);

@@ -1,11 +1,13 @@
-// The engine: owns the renderer, loads scenes for the timeline, renders any song time
-// deterministically (with preroll for stateful scenes), composites transitions, HUD, post.
+// The engine: owns the renderer, loads a video (narration, audio, timeline) and its scenes, renders any
+// video time deterministically (with preroll for stateful scenes), composites transitions, HUD, post.
 import * as THREE from 'three';
 import { AudioData } from './audio';
-import { Lyrics } from './lyrics';
+import type { Narration } from './narration';
+import { loadVideo, type VideoInfo } from './video';
+import { loadTimeline } from '../timeline';
 import { Compositor, FSPass, W, H, PW, PH, SCALE, SS_TAP, makeRT, clearRT } from './gl';
 import { DEFAULT_POST, Post, SHOULDER_GLSL, type PostParams } from './post';
-import { Hud, PDoom, type Caption } from './hud';
+import { Hud } from './hud';
 import type { Frame, Scene, SceneClass, SceneCtx, PostOverrides } from './scene';
 import { loadFonts } from './type';
 import { loadStrokeFonts } from './stroke';
@@ -16,8 +18,12 @@ export interface TimelineEntry {
   load: () => Promise<{ default: SceneClass }>;
   start: number;
   end: number;
-  /** Plate caption shown bottom-right at the start of this entry. */
-  caption?: { fig: string; text: string; dur?: number; delay?: number };
+  /** Component module name (src/components/<name>.ts), for hot reload. */
+  component?: string;
+  /** Source line shown bottom-left while this entry is on screen ("U.S. BLS, CPI-U 1990–2025"). */
+  source?: string;
+  /** Hypothetical/assumption note shown above the source line ("Hypothetical · 8% avg annual return · not guaranteed"). */
+  note?: string;
   /** Default post overrides for this entry (the scene's own overrides win). */
   post?: PostOverrides;
   /** Free-form params handed to the scene as ctx.params. */
@@ -53,7 +59,8 @@ export class Engine {
   renderer: THREE.WebGLRenderer;
   ctx!: SceneCtx;
   audio!: AudioData;
-  lyrics!: Lyrics;
+  narration!: Narration;
+  video!: VideoInfo;
   hud!: Hud;
   post!: Post;
   comp = new Compositor();
@@ -79,12 +86,12 @@ export class Engine {
   private lastT = -1;
   lastPost: PostParams = { ...DEFAULT_POST };
   errors: string[] = [];
-  /** Suppress the HUD (captions, crop marks) — used when rendering plate thumbnails. */
+  /** Suppress the HUD (source line, notes) — e.g. for thumbnails. */
   hudOff = false;
 
   timeline: TimelineEntry[] = [];
 
-  constructor(public canvas: HTMLCanvasElement, private makeTimeline: (lyrics: Lyrics, audio: AudioData) => TimelineEntry[]) {
+  constructor(public canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(1);
     this.renderer.setSize(PW, PH, false);
@@ -138,16 +145,14 @@ export class Engine {
       }`, { e: { value: null } });
   }
 
-  async init(only?: (e: TimelineEntry) => boolean) {
-    [this.audio, this.lyrics] = await Promise.all([AudioData.load(), Lyrics.load(), loadFonts(), loadStrokeFonts()]) as [AudioData, Lyrics, void, void];
-    this.timeline = this.makeTimeline(this.lyrics, this.audio);
-    this.ctx = { renderer: this.renderer, audio: this.audio, lyrics: this.lyrics, comp: this.comp, W, H, id: '', params: {}, start: 0, end: 0 };
+  /** Load video `videoId` (videos/<id>/) and its timeline; `only` limits which entries get their scenes loaded. */
+  async init(videoId: string, only?: (e: TimelineEntry) => boolean) {
+    const [v] = await Promise.all([loadVideo(videoId), loadFonts(), loadStrokeFonts()]);
+    ({ video: this.video, narration: this.narration, audio: this.audio } = v);
+    this.timeline = await loadTimeline(this.video, this.narration, this.audio);
+    this.ctx = { renderer: this.renderer, audio: this.audio, narration: this.narration, video: this.video, comp: this.comp, W, H, id: '', params: {}, start: 0, end: 0 };
     this.post = new Post();
-    const captions: Caption[] = this.timeline.filter((e) => e.caption).map((e) => {
-      const d = e.caption!.delay ?? 0.3;
-      return { start: e.start + d, end: e.start + d + (e.caption!.dur ?? 4.5), fig: e.caption!.fig, text: e.caption!.text };
-    });
-    this.hud = new Hud(new PDoom(this.lyrics), captions);
+    this.hud = new Hud(this.timeline.filter((e) => e.source || e.note).map((e) => ({ start: e.start, end: e.end, source: e.source, note: e.note })));
     const entries = only ? this.timeline.filter(only) : this.timeline;
     await Promise.all(entries.map((e) => this.loadEntry(e)));
   }
@@ -176,7 +181,7 @@ export class Engine {
     this.lastT = -1;
   }
 
-  get duration() { return this.audio.duration; }
+  get duration() { return this.video.duration; }
 
   private frameFor(e: TimelineEntry, t: number, dt: number, seeked: boolean, preroll: boolean, under: THREE.Texture | null, tin: number, tout: number): Frame {
     const beat = this.audio.beatAt(t), bar = this.audio.barAt(t);
@@ -188,7 +193,7 @@ export class Engine {
   }
 
   /**
-   * Render song time t. `dt` is the nominal frame step (1/fps). A non-sequential t counts as a
+   * Render video time t. `dt` is the nominal frame step (1/fps). A non-sequential t counts as a
    * seek: stateful scenes are reset and fast-forwarded.
    *
    * Motion blur (offline export; the preview uses 1 sample): `samples` > 1 renders that many sub-frames
@@ -233,7 +238,7 @@ export class Engine {
       // sub-frame k at shutter offset u (-0.5..0.5), summed into `into`; `step` = the sub-frame spacing
       const sub = (k: number, u: number, into: THREE.WebGLRenderTarget, step: number) => {
         SS_TAP.value = cycle ? (k + (k >> 2)) % 4 : -1;
-        // (clamped at 0: before the song no scene is active, and frame 0 would come out half black)
+        // (clamped at 0: before the video no scene is active, and frame 0 would come out half black)
         const res = this.composite(Math.max(0, t + dt * shutter * u), step, seeked && k === 0);
         this.accum.u.src!.value = res.outTex;
         this.accum.render(r, into);
@@ -266,7 +271,7 @@ export class Engine {
       outTex = this.avgRT.texture;
     }
     this.lastSamples = n;
-    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, frame: post.frame, readout: post.pdoom, paper: post.paper, pdoomOverride: post.pdoomText, corruption: post.hudCorruption });
+    const hudTex = this.hud.draw(t, { opacity: this.hudOff ? 0 : post.hud, paper: post.paper });
     this.post.render(r, outTex, hudTex, this.finalRT, post, t);
     this.lastPost = post;
     if (toScreen) {

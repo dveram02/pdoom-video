@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "finance-video-engine",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -16,5 +16,10 @@
   "dependencies": {
     "opentype.js": "^2.0.0",
     "three": "^0.186.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.scripts.json"
   }
 }

@@ -1,29 +1,33 @@
-// Scene API. A scene owns a time window of the song and renders HDR linear colour
+// Scene API. A scene owns a time window of the video and renders HDR linear colour
 // into the render target it is given. Everything must be a deterministic function of
 // time (plus internal state advanced only through render() calls, see `stateful`).
 import type * as THREE from 'three';
 import type { AudioData, AudioSample } from './audio';
-import type { Lyrics } from './lyrics';
+import type { Narration } from './narration';
+import type { VideoInfo } from './video';
 import type { Compositor } from './gl';
 import type { PostParams } from './post';
 
 export interface SceneCtx {
   renderer: THREE.WebGLRenderer;
   audio: AudioData;
-  lyrics: Lyrics;
+  /** Word-timed narration: anchor to what is said (narration.phrase('five hundred dollars').start). */
+  narration: Narration;
+  /** The video: assumptions (the numbers to compute from), sources, meta. */
+  video: VideoInfo;
   comp: Compositor;
   W: number;
   H: number;
   /** Timeline entry id and its free-form params (lets one scene module serve several entries). */
   id: string;
   params: Record<string, any>;
-  /** Entry window (song seconds). */
+  /** Entry window (video seconds). */
   start: number;
   end: number;
 }
 
 export interface Frame {
-  /** Song time (s). */
+  /** Video time (s). */
   t: number;
   /** Time since the previous rendered frame (1/fps on export; 0 after a seek). */
   dt: number;
@@ -36,7 +40,7 @@ export interface Frame {
   seeked: boolean;
   /** True while the engine fast-forwards a stateful scene after a seek (skip non-essential work). */
   preroll: boolean;
-  /** Continuous beat/bar indices from the analysed grid, and their fractional phases. */
+  /** Continuous beat/bar indices (0 unless the video's audio.json has a beat grid), and their fractional phases. */
   beat: number;
   bar: number;
   beatPhase: number;

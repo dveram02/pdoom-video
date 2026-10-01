@@ -1,10 +1,12 @@
 // Entry: preview player (default) or export mode (?export=1, driven by scripts/render.ts).
 import { Engine, type AdaptiveSampling } from './engine/engine';
 import { PW, PH, SCALE } from './engine/gl';
-import { makeTimeline } from './timeline';
+import { videoIds } from './timeline';
 
 const params = new URLSearchParams(location.search);
 const EXPORT = params.has('export');
+// ?video=<id> (a folder in videos/), else VITE_VIDEO, else the first video
+const VIDEO = params.get('video') ?? import.meta.env.VITE_VIDEO ?? videoIds[0];
 const ONLY = params.get('only'); // comma-separated scene ids to load (faster stills)
 const FROM = params.get('t') ? parseFloat(params.get('t')!) : null;
 
@@ -13,17 +15,19 @@ const canvas = document.getElementById('c') as HTMLCanvasElement;
 canvas.width = PW;
 canvas.height = PH;
 
-const engine = new Engine(canvas, makeTimeline);
+const engine = new Engine(canvas);
 
 declare global {
-  interface Window { __pdoom: any }
+  interface Window { __engine: any }
 }
 
 let TIMELINE: typeof engine.timeline = [];
 
 async function boot() {
+  if (!VIDEO) throw new Error('no videos: create videos/<id>/ with video.json, narration.json and timeline.ts (see videos/README.md)');
   const onlySet = ONLY ? new Set(ONLY.split(',')) : null;
-  await engine.init(onlySet ? (e) => onlySet.has(e.id) : undefined);
+  await engine.init(VIDEO, onlySet ? (e) => onlySet.has(e.id) : undefined);
+  document.title = `${engine.video.meta.title} · ${VIDEO}`;
   TIMELINE = engine.timeline;
   if (EXPORT) setupExport();
   else setupPlayer();
@@ -32,9 +36,11 @@ async function boot() {
 // ------------------------------------------------------------------ export API
 function setupExport() {
   document.body.classList.add('export');
-  window.__pdoom = {
+  window.__engine = {
     engine,
     duration: engine.duration,
+    /** The video being rendered: render.ts muxes `audioFile` from videos/<id>/. */
+    video: { id: engine.video.id, title: engine.video.meta.title, audioFile: engine.video.audioFile },
     errors: engine.errors,
     /** Output size in px (1920x1080 times scale); stream() sends frames of width*height*4 bytes. */
     scale: SCALE,
@@ -90,13 +96,15 @@ function setupExport() {
       return used;
     },
   };
-  window.__pdoom.ready = true;
+  window.__engine.ready = true;
 }
 
 // ------------------------------------------------------------------ preview player
 function setupPlayer() {
-  const audio = new Audio('audio/pdoom.mp3');
-  audio.preload = 'auto';
+  // no audio yet (timings estimated from the script): play on a wall clock instead
+  const audio = engine.video.audioUrl ? new Audio(engine.video.audioUrl) : null;
+  if (audio) audio.preload = 'auto';
+  let clock0 = 0, clockT = 0; // wall-clock playback: t = clockT + (now - clock0)
   const ui = document.getElementById('ui')!;
   const scrub = document.getElementById('scrub') as HTMLInputElement;
   const info = document.getElementById('info')!;
@@ -121,10 +129,17 @@ function setupPlayer() {
   let playing = false;
   let loop: [number, number] | null = null;
   let lastAudioT = 0, lastPerf = 0;
-  const seek = (x: number) => { t = Math.max(0, Math.min(engine.duration - 0.001, x)); audio.currentTime = t; };
+  const seek = (x: number) => {
+    t = Math.max(0, Math.min(engine.duration - 0.001, x));
+    if (audio) audio.currentTime = t;
+    clockT = t; clock0 = performance.now();
+  };
   seek(t);
 
-  const toggle = () => { playing = !playing; if (playing) { audio.currentTime = t; audio.play(); } else audio.pause(); };
+  const toggle = () => {
+    playing = !playing;
+    if (playing) { seek(t); audio?.play(); } else audio?.pause();
+  };
   canvas.onclick = toggle;
   scrub.oninput = () => seek(parseFloat(scrub.value));
   window.addEventListener('keydown', (ev) => {
@@ -145,12 +160,14 @@ function setupPlayer() {
   let frames = 0, fpsT = performance.now(), fps = 0;
   const tick = () => {
     if (playing) {
-      // smooth the coarse audio clock with performance.now()
       const now = performance.now();
-      if (audio.currentTime !== lastAudioT) { lastAudioT = audio.currentTime; lastPerf = now; }
-      t = lastAudioT + (audio.paused ? 0 : (now - lastPerf) / 1000);
+      if (audio) {
+        // smooth the coarse audio clock with performance.now()
+        if (audio.currentTime !== lastAudioT) { lastAudioT = audio.currentTime; lastPerf = now; }
+        t = lastAudioT + (audio.paused ? 0 : (now - lastPerf) / 1000);
+      } else t = clockT + (now - clock0) / 1000;
       if (loop && t >= loop[1]) seek(loop[0]);
-      if (audio.ended) playing = false;
+      if (audio?.ended || t >= engine.duration) { playing = false; t = Math.min(t, engine.duration - 0.001); }
     }
     engine.render(t, 1 / 60);
     scrub.value = String(t);
@@ -158,18 +175,19 @@ function setupPlayer() {
     const now = performance.now();
     if (now - fpsT > 500) { fps = (frames * 1000) / (now - fpsT); frames = 0; fpsT = now; }
     const e = TIMELINE.find((x) => t >= x.start && t < x.end);
-    const l = engine.lyrics.lineAt(t);
-    info.textContent = `${t.toFixed(2)}s  beat ${engine.audio.beatAt(t).toFixed(2)}  bar ${engine.audio.barAt(t).toFixed(2)}  [${e?.id ?? '—'}]  ${fps.toFixed(0)}fps   ${l ? '“' + l.text + '”' : ''}${loop ? '  LOOP' : ''}`;
+    const l = engine.narration.lineAt(t);
+    const clock = audio ? '' : '  (no audio: wall clock)';
+    info.textContent = `${t.toFixed(2)}s / ${engine.duration.toFixed(1)}s  [${e?.id ?? '—'}]  ${fps.toFixed(0)}fps${clock}   ${l ? '“' + l.text + '”' : ''}${loop ? '  LOOP' : ''}`;
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 
-  // Vite HMR: re-instantiate scenes whose module changed
+  // Vite HMR: re-instantiate the entries whose component module changed
   if (import.meta.hot) {
     import.meta.hot.on('vite:afterUpdate', (payload: any) => {
       for (const u of payload.updates ?? []) {
-        const m = /scenes\/([\w-]+)\.ts/.exec(u.path ?? '');
-        if (m) for (const e of TIMELINE) if (e.id === m[1] || (e as any).file === m[1]) engine.reload(e.id);
+        const m = /components\/([\w-]+)\.ts/.exec(u.path ?? '');
+        if (m) for (const e of TIMELINE) if (e.component === m[1]) engine.reload(e.id);
       }
     });
   }
@@ -178,5 +196,5 @@ function setupPlayer() {
 boot().catch((e) => {
   console.error(e);
   document.body.insertAdjacentHTML('beforeend', `<pre style="color:#f55;position:fixed;top:0;left:0">${String(e?.stack ?? e)}</pre>`);
-  window.__pdoom = { error: String(e?.stack ?? e) };
+  window.__engine = { error: String(e?.stack ?? e) };
 });
