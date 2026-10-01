@@ -78,7 +78,7 @@ I compared it against the actual code. These are the problems it didn't mention:
 
 ## Part B — Channel foundations (docs, no code)
 
-### B1. Create `CLAUDE.md` at the repo root
+### B1. Create `CLAUDE.md` at the repo root ✅ (draft v1, 2026-10-01; review it)
 This is the "persistent project instruction file" the ChatGPT chat described. Claude Code loads it
 automatically every session. Include:
 - **Role:** animation director and motion-graphics engineer for a faceless finance channel.
@@ -92,7 +92,7 @@ automatically every session. Include:
   Work in small batches (2–4 scenes at a time).
 - **What not to carry over:** the P(doom) counter, the orange spark, the mask, AI motifs, lyrics and characters.
 
-### B2. Write `docs/FINANCE_STYLE_GUIDE.md` (replaces `TREATMENT.md` as the creative bible)
+### B2. Write `docs/FINANCE_STYLE_GUIDE.md` (replaces `TREATMENT.md` as the creative bible) ✅ (draft v1; palette validated for colour-blindness and contrast; review it)
 Have Claude draft it, then you edit it. Lock in the following:
 - **Palette.** Map it onto `engine/palette.ts`, which currently has ink/bone/signal/ember/acid. For example:
   ink `#090A0C`, bone `#F4F4F2`, ash `#9297A0`, gain green, loss red, accent gold.
@@ -108,16 +108,19 @@ Have Claude draft it, then you edit it. Lock in the following:
 - **Post look:** low or zero grain, no CA, no halation, light vignette, subtle bloom only on accents.
 - **Avoid:** generic AI imagery, crypto neon, random particles, stock-footage look, cartoon characters.
 
-### B3. Choose your narration and timestamp tool
-- [ ] **Voice:** your own voice (best for authenticity and monetization), or a licensed TTS such as ElevenLabs.
-- [ ] **Word timestamps**, best option first:
-  1. **ElevenLabs** "with timestamps" API: returns character-level alignment for free, with no extra step.
-  2. **WhisperX / faster-whisper** with word timestamps. `analysis/` already has a uv Python setup
-     and `whisper_run.py` to adapt. If you have the script text, use *forced alignment* rather than
-     free transcription, so the words match your script exactly.
-- [ ] The output gets converted to the **same shape as `data/lyrics.json`**
-      (`lines[] → {text,start,end,words[{w,start,end}]}`) so the existing `Lyrics` class and helpers
-      (`get`, `wordProgress`, `lineCharProgress`) work unchanged. A "line" equals one sentence.
+### B3. Narration and timestamp tool ✅ (decided 2026-10-01)
+- [x] **Audience: United States**: USD, US accounts and rules, US primary sources, US spelling on screen (recorded in `CLAUDE.md`).
+- [x] **Voice: support both, decided per video.** One output format, two ways in:
+  - **Path 1, ElevenLabs TTS:** generate with the *with-timestamps* endpoint and keep its character alignment JSON →
+    `scripts/narration.ts from-elevenlabs` builds `narration.json`. No Whisper needed. Needs a paid plan for
+    monetized use. Check YouTube's synthetic-content disclosure rules at upload.
+  - **Path 2, own voice:** record `narration.wav` (48 kHz, mono, quiet room) plus `script.md` →
+    **WhisperX forced alignment against the script text**, not free transcription, so the words match the script
+    exactly. Reuse the uv setup in `analysis/` (adapt `whisper_run.py` / `ctcalign.py`).
+- [ ] Build both converters as part of **C2** (to be done then, not now). Output in the **same shape as `data/lyrics.json`**
+      (`lines[] → {text,start,end,words[{w,start,end}]}`, one line per sentence), so the `Lyrics` helpers
+      (`get`, `wordProgress`, `lineCharProgress`) work unchanged.
+- [ ] Also from `narration.json`: an **SRT captions file** for the upload (G1).
 
 ---
 
@@ -285,7 +288,7 @@ Suggested first full-length topics, in order of visual simplicity: *How Compound
 ## Immediate next actions
 
 1. ~~**A1–A4**: fix the git layout, symlinks and GPU flag, then smoke-test.~~ ✅ Done and committed on `finance-channel`.
-2. **B1–B2**: `CLAUDE.md` and `FINANCE_STYLE_GUIDE.md`. *(Claude drafts them, you edit.)*
-3. **B3**: decide on your voice and timestamp tool.
+2. ~~**B1–B2**: `CLAUDE.md` and `FINANCE_STYLE_GUIDE.md`.~~ ✅ Drafted. Review and edit them.
+3. ~~**B3**: decide on your voice and timestamp tool.~~ ✅ US audience. Both ElevenLabs and own voice are supported.
 4. **C1–C5**: engine generalization, as one reviewed change.
 5. **D**: the first 5 components → **E**: the 60-second prototype.
