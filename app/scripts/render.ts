@@ -14,6 +14,9 @@ import { chromium, type Page } from 'playwright-core';
 import { mkdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
+// (bun on Windows throws EEXIST from a recursive mkdirSync of an existing relative path: resolve it first)
+const mkdirp = (dir: string) => mkdirSync(path.resolve(dir), { recursive: true });
+
 const argv = process.argv.slice(2);
 const mode = argv[0] ?? 'stills';
 const opt = (k: string, d?: string) => { const i = argv.indexOf(`--${k}`); return i >= 0 ? argv[i + 1] : d; };
@@ -40,14 +43,23 @@ async function ensureServer(): Promise<{ url: string; stop: () => void }> {
   const proc = Bun.spawn(['bunx', 'vite', '--port', String(port), '--strictPort'], { cwd: APP, stdout: 'ignore', stderr: 'ignore', env: { ...process.env, PDOOM_NO_HMR: '1' } });
   const u = `http://localhost:${port}`;
   for (let i = 0; i < 100 && !(await reachable(u)); i++) await Bun.sleep(100);
-  return { url: u, stop: () => proc.kill() };
+  // on Windows, killing bunx leaves its node child (vite) running: kill the whole process tree
+  const stop = () => process.platform === 'win32'
+    ? void Bun.spawnSync(['taskkill', '/pid', String(proc.pid), '/T', '/F'], { stdout: 'ignore', stderr: 'ignore' })
+    : proc.kill();
+  return { url: u, stop };
 }
+
+const ANGLE = process.platform === 'darwin' ? ['--use-angle=metal']
+  : process.platform === 'win32' ? ['--use-angle=d3d11', '--force_high_performance_gpu']
+  : [];
 
 async function openPage(url: string) {
   const browser = await chromium.launch({
     channel: 'chrome',
     headless: !flag('headed'),
-    args: ['--use-angle=metal', '--enable-gpu-rasterization', '--ignore-gpu-blocklist', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'],
+    // ANGLE backend per platform: Metal on macOS, D3D11 on Windows (ask for the discrete GPU), default elsewhere
+    args: [...ANGLE,'--enable-gpu-rasterization', '--ignore-gpu-blocklist', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'],
   });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
   const logs: string[] = [];
@@ -66,7 +78,7 @@ async function openPage(url: string) {
 }
 
 async function stills(page: Page, times: number[], outDir: string) {
-  mkdirSync(outDir, { recursive: true });
+  mkdirp(outDir);
   const files: string[] = [];
   for (const t of times) {
     const k: number = await page.evaluate(([t, s, sh]) => (window as any).__pdoom.still(t, s, sh), [t, SAMPLES, +opt('shutter', '0.5')!] as const);
@@ -98,12 +110,12 @@ async function sheet(page: Page, times: number[], cols: number, out: string) {
     });
     return cv.toDataURL('image/png');
   }, { times, cols });
-  mkdirSync(path.dirname(out), { recursive: true });
+  mkdirp(path.dirname(out));
   await Bun.write(out, Buffer.from(dataUrl.split(',')[1]!, 'base64'));
 }
 
 async function video(page: Page, from: number, to: number, fps: number, out: string) {
-  mkdirSync(path.dirname(out), { recursive: true });
+  mkdirp(path.dirname(out));
   const crf = opt('crf', '16')!;
   const audio = path.join(ROOT, 'audio/pdoom.mp3');
   const args = ['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', `${OW}x${OH}`, '-r', String(fps), '-i', 'pipe:0'];
@@ -172,7 +184,7 @@ try {
     const figs = ['open', 'loss', 'room', 'shoggoth', 'spacetime', 'ascent', 'bureau', 'leftturn', 'paperclips', 'fuse', 'stack', 'dense', 'loom', 'ilya'];
     const overrides: Record<string, number> = existsSync(path.join(APP, 'plates.json')) ? await Bun.file(path.join(APP, 'plates.json')).json() : {};
     const dir = path.join(APP, 'public/plates');
-    mkdirSync(dir, { recursive: true });
+    mkdirp(dir);
     await page.evaluate(() => { (window as any).__pdoom.engine.hudOff = true; });
     for (let i = 0; i < figs.length; i++) {
       const e = tl.find((x) => x.id === figs[i]);
