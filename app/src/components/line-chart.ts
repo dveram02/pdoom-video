@@ -1,11 +1,11 @@
-// LineChart: series that draw in left to right on narration cues, with riding end labels and a single y-axis
-// that rescales smoothly when the values outgrow it (style guide §5).
+// LineChart: series that draw in left to right on narration cues, with riding end labels and a single y-axis,
+// fixed at the final range so the curve keeps its shape (style guide §5; `follow` rescales as an exception).
 //
 //   const s = growthSeries(a);
 //   E('growth', 'line-chart', at('Imagine'), at('Now compare'), {
 //     kicker: 'Hypothetical', title: '$100 a month at 8%',
 //     x: { from: 0, to: 30, label: 'Years', step: 5 },
-//     y: { format: 'usdCompact', follow: true },
+//     y: { format: 'usdCompact' },                  // fixed at the final range: keep the curve's shape
 //     series: [
 //       { id: 'put', label: 'You put in', color: 'ash', points: s.map(p => [p.year, p.contributed]), drawOn: 'Imagine', drawTo: 'thirty years' },
 //       { id: 'bal', label: 'Account', color: 'gold', fill: true, points: s.map(p => [p.year, p.balance]), drawOn: 'Imagine', drawTo: 'thirty years' },
@@ -18,7 +18,8 @@
 //            fill (area under the line), endFormat (NumFormat of the riding label; default y.format → exact usd)
 // x:         from, to, label (axis title, e.g. 'Years' / 'Age'), step (tick spacing; default ~6 ticks), prefix (tick text)
 // y:         format (NumFormat for tick labels; default 'usdCompact'), max (fixed top; default: nice max of all data),
-//            follow (the top follows the drawn values, rescaling smoothly), min (default 0)
+//            follow (the top follows the drawn values, rescaling smoothly: an exception, see style guide §5.3;
+//            a growing axis flattens the curve), min (default 0)
 // notes[]:   { series, x, text, on (cue) }: a callout on a series at x, popping in on its cue
 // legend:    true/false (default: shown with ≥ 2 series)
 import * as THREE from 'three';
@@ -28,7 +29,7 @@ import { LIN, SERIES, rgba, type PaletteKey } from '../engine/palette';
 import { F, font } from '../engine/type';
 import { SAFE } from '../engine/hud';
 import { clamp, ease, frameTime, prog } from '../engine/util';
-import { cueTime, drawLegend, drawMono, drawYGrid, fmt, interp, niceMax, niceStep, type Cue, type NumFormat } from './_kit';
+import { cueTime, drawLegend, drawMono, drawYGrid, fmt, interp, niceMax, niceStep, spreadLabels, type Cue, type NumFormat } from './_kit';
 
 type EaseName = 'inOutCubic' | 'linear' | 'outCubic';
 interface SeriesP {
@@ -148,7 +149,7 @@ export default class LineChart extends Scene {
 
     // series: area fill, then the line up to its head (clipped to the plot: during a rescale the head can briefly
     // run past the old top)
-    const heads: { s: SeriesR; x: number; y: number; v: number; vy: number }[] = [];
+    const heads: { s: SeriesR; x: number; y: number; v: number }[] = [];
     c.save();
     c.beginPath(); c.rect(PL - 12, PT - 40, PR - PL + 24, PB - PT + 52); c.clip();
     for (const s of this.series) {
@@ -173,24 +174,28 @@ export default class LineChart extends Scene {
       c.stroke(path);
       // the label's VALUE holds one number per frame; the dot and label POSITION follow the moving head
       const vf = interp(s.points, this.headX(s, tf));
-      heads.push({ s, x: X(xh), y: Y(yh), v: vf, vy: Y(yh) });
+      heads.push({ s, x: X(xh), y: Y(yh), v: vf });
     }
     c.restore();
 
-    // riding end labels: keep ≥ 56 px apart vertically (two passes of pushing apart, deterministic)
-    heads.sort((a, b) => a.vy - b.vy);
-    for (let pass = 0; pass < 3; pass++)
-      for (let i = 1; i < heads.length; i++) {
-        const d = heads[i]!.vy - heads[i - 1]!.vy;
-        if (d < 56) { heads[i - 1]!.vy -= (56 - d) / 2; heads[i]!.vy += (56 - d) / 2; }
+    // riding end labels: a label block (mono name over the value) is ~60 px tall; keep blocks ≥ 66 px apart and
+    // inside the plot (value baselines between PT + 30 and PB − 14), with a hairline leader to the dot when a label
+    // had to move away from it (both lines start at $0, so early on their labels stack)
+    const ly = spreadLabels(heads.map((h) => h.y), 66, PT + 30, PB - 14);
+    heads.forEach((h, i) => {
+      const lx = h.x + 22, vy = ly[i]!;
+      if (Math.abs(vy - h.y) > 8) {
+        c.strokeStyle = rgba('ash', 0.45); c.lineWidth = 1.5;
+        c.beginPath(); c.moveTo(h.x + 9, h.y); c.lineTo(lx - 6, vy - 6); c.stroke();
       }
+      c.font = font(F.mono(600), 28); c.fillStyle = rgba('bone'); c.textAlign = 'left';
+      c.fillText(fmt(h.v, h.s.endFormat ?? (yFmt === 'usdCompact' ? 'usd' : yFmt)), lx, vy + 10);
+      if (h.s.label) drawMono(c, h.s.label, lx, vy - 22, { size: 18, color: 'ash' });
+    });
+    // dots last, in series order: when heads coincide, the later series (the hero, e.g. the gold balance) is on top
     for (const h of heads) {
       c.fillStyle = rgba(h.s.color === 'ash' ? 'bone' : h.s.color === 'gold' ? 'goldHi' : h.s.color);
       c.beginPath(); c.arc(h.x, h.y, 7, 0, Math.PI * 2); c.fill();
-      const lx = h.x + 22;
-      c.font = font(F.mono(600), 28); c.fillStyle = rgba('bone'); c.textAlign = 'left';
-      c.fillText(fmt(h.v, h.s.endFormat ?? (yFmt === 'usdCompact' ? 'usd' : yFmt)), lx, h.vy + 10);
-      if (h.s.label) drawMono(c, h.s.label, lx, h.vy - 22, { size: 18, color: 'ash' });
     }
 
     // legend (≥ 2 series): swatch + label, top right

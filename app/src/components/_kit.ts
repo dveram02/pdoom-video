@@ -133,3 +133,29 @@ export function drawLegend(c: CanvasRenderingContext2D, items: { label: string; 
   }
   c.restore();
 }
+
+/**
+ * Vertical positions for stacked labels that want to sit at `want` (any order): at least `gap` apart and inside
+ * [min, max]. Pushes overlapping labels apart symmetrically, then keeps the stack inside the range (stacking up
+ * from `max` / down from `min`). Returns positions in the input order. Deterministic: a pure function of its inputs.
+ */
+export function spreadLabels(want: number[], gap: number, min: number, max: number): number[] {
+  const order = want.map((y, i) => ({ y, i })).sort((a, b) => a.y - b.y || a.i - b.i);
+  const y = order.map((o) => o.y);
+  for (let pass = 0; pass < 12; pass++)
+    for (let i = 1; i < y.length; i++) {
+      const d = y[i]! - y[i - 1]!;
+      if (d < gap) { y[i - 1]! -= (gap - d) / 2; y[i]! += (gap - d) / 2; }
+    }
+  const n = y.length;
+  if (n) {
+    y[n - 1] = Math.min(y[n - 1]!, max);
+    for (let i = n - 2; i >= 0; i--) y[i] = Math.min(y[i]!, y[i + 1]! - gap);
+    y[0] = Math.max(y[0]!, min);
+    for (let i = 1; i < n; i++) y[i] = Math.max(y[i]!, y[i - 1]! + gap);
+  }
+  const out = new Array<number>(want.length);
+  order.forEach((o, k) => (out[o.i] = y[k]!));
+  return out;
+}
+

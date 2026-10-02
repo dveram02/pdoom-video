@@ -151,7 +151,11 @@ Video charts aren't interactive, so **direct labels do the job of tooltips**.
 - **Build in this order:** axes and grid (0.4 s) → series draws left to right (2–4 s, `inOutCubic`, or synced to the narration
   phrase) → end label → annotation. Each step lands on a spoken word.
 - **A counter and a line are driven by the same `t`**, so the label always equals the line's current value.
-- **Rescale smoothly:** when values outgrow the axis, ease the y-scale (0.6 s) and re-label the ticks. Never jump.
+- **Fix the axis at its final range from the first frame** (`$0`–`$150K` for a line ending at $149K). The viewer
+  sees the line crawl along the bottom and then climb: that shape *is* the compounding story, and an axis that grows
+  with the line flattens it into a straight-looking ramp. It also keeps charts consistent with each other. Only
+  rescale (`follow`, eased 0.6 s, never a jump) when the early values would otherwise be invisible and the narration
+  is about them, e.g. zooming out from the first year to the whole 30.
 - **Log scale** only when the narration explains it, with an on-screen `LOG SCALE` tag.
 
 ---

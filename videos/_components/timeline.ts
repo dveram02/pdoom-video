@@ -39,7 +39,7 @@ const timeline: MakeTimeline = ({ E, at, duration, video }) => {
     E('line', 'line-chart', s6, s7, {
       kicker: 'Hypothetical · 8% a year', title: '$100 a month for 30 years',
       x: { from: 0, to: a.years, label: 'Years', step: 5 },
-      y: { format: 'usdCompact', follow: true },
+      y: { format: 'usdCompact' }, // fixed $0–$150K: the curve's shape IS the point
       series: [
         { id: 'put', label: 'You put in', color: 'ash', points: series.map((p) => [p.year, p.contributed]), drawOn: 'Watch one hundred', drawTo: 'Somewhere along the way' },
         { id: 'bal', label: 'Account', color: 'gold', fill: true, points: series.map((p) => [p.year, p.balance]), drawOn: 'Watch one hundred', drawTo: 'Somewhere along the way' },

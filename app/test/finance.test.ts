@@ -118,3 +118,20 @@ describe('counter padding (big-number)', () => {
     expect(padToFinal('$950', '$1.2M')).toEqual(['', '', '$950']);
   });
 });
+
+describe('end-label spreading (line-chart)', async () => {
+  const { spreadLabels } = await import('../src/components/_kit');
+  test('pushes apart, keeps order, stays in range', () => {
+    // two labels at the same spot near the bottom edge: stacked upward from max, 66 apart
+    expect(spreadLabels([800, 800], 66, 330, 806)).toEqual([740, 806]);
+    // far apart: untouched
+    expect(spreadLabels([400, 700], 66, 330, 806)).toEqual([400, 700]);
+    // input order is preserved in the output
+    const out = spreadLabels([700, 690, 500], 66, 330, 806);
+    expect(out[2]).toBe(500);
+    expect(Math.abs(out[0]! - out[1]!)).toBeGreaterThanOrEqual(66 - 1e-9);
+    expect(out[0]!).toBeGreaterThan(out[1]!);
+    // near the top edge: stacked downward from min
+    expect(spreadLabels([300, 310], 66, 330, 806)).toEqual([330, 396]);
+  });
+});
