@@ -1,0 +1,372 @@
+{
+ "meta": {
+  "source": "estimate",
+  "wpm": 155
+ },
+ "chapters": [
+  {
+   "title": "Reveal",
+   "start": 0.6
+  },
+  {
+   "title": "Contributions",
+   "start": 4.6
+  },
+  {
+   "title": "Growth",
+   "start": 9.589
+  },
+  {
+   "title": "Rate",
+   "start": 14.839
+  },
+  {
+   "title": "Debt",
+   "start": 21.295
+  }
+ ],
+ "lines": [
+  {
+   "text": "It starts with one hundred dollars a month.",
+   "start": 0.6,
+   "end": 3.667,
+   "words": [
+    {
+     "w": "It",
+     "start": 0.6,
+     "end": 0.814
+    },
+    {
+     "w": "starts",
+     "start": 0.832,
+     "end": 1.287
+    },
+    {
+     "w": "with",
+     "start": 1.326,
+     "end": 1.63
+    },
+    {
+     "w": "one",
+     "start": 1.656,
+     "end": 1.883
+    },
+    {
+     "w": "hundred",
+     "start": 1.903,
+     "end": 2.433
+    },
+    {
+     "w": "dollars",
+     "start": 2.479,
+     "end": 3.01
+    },
+    {
+     "w": "a",
+     "start": 3.056,
+     "end": 3.27
+    },
+    {
+     "w": "month.",
+     "start": 3.288,
+     "end": 3.667
+    }
+   ]
+  },
+  {
+   "text": "Over thirty years, you put in thirty-six thousand dollars.",
+   "start": 4.6,
+   "end": 8.642,
+   "words": [
+    {
+     "w": "Over",
+     "start": 4.6,
+     "end": 4.903
+    },
+    {
+     "w": "thirty",
+     "start": 4.93,
+     "end": 5.384
+    },
+    {
+     "w": "years,",
+     "start": 5.424,
+     "end": 5.803
+    },
+    {
+     "w": "you",
+     "start": 5.985,
+     "end": 6.213
+    },
+    {
+     "w": "put",
+     "start": 6.233,
+     "end": 6.46
+    },
+    {
+     "w": "in",
+     "start": 6.48,
+     "end": 6.693
+    },
+    {
+     "w": "thirty-six",
+     "start": 6.712,
+     "end": 7.394
+    },
+    {
+     "w": "thousand",
+     "start": 7.453,
+     "end": 8.059
+    },
+    {
+     "w": "dollars.",
+     "start": 8.112,
+     "end": 8.642
+    }
+   ]
+  },
+  {
+   "text": "But the account grows to about one hundred forty-nine thousand.",
+   "start": 9.589,
+   "end": 13.886,
+   "words": [
+    {
+     "w": "But",
+     "start": 9.589,
+     "end": 9.816
+    },
+    {
+     "w": "the",
+     "start": 9.836,
+     "end": 10.063
+    },
+    {
+     "w": "account",
+     "start": 10.083,
+     "end": 10.613
+    },
+    {
+     "w": "grows",
+     "start": 10.659,
+     "end": 11.038
+    },
+    {
+     "w": "to",
+     "start": 11.071,
+     "end": 11.285
+    },
+    {
+     "w": "about",
+     "start": 11.303,
+     "end": 11.682
+    },
+    {
+     "w": "one",
+     "start": 11.715,
+     "end": 11.942
+    },
+    {
+     "w": "hundred",
+     "start": 11.962,
+     "end": 12.493
+    },
+    {
+     "w": "forty-nine",
+     "start": 12.539,
+     "end": 13.221
+    },
+    {
+     "w": "thousand.",
+     "start": 13.28,
+     "end": 13.886
+    }
+   ]
+  },
+  {
+   "text": "That assumes an eight percent average annual return, which is not guaranteed.",
+   "start": 14.839,
+   "end": 20.329,
+   "words": [
+    {
+     "w": "That",
+     "start": 14.839,
+     "end": 15.142
+    },
+    {
+     "w": "assumes",
+     "start": 15.168,
+     "end": 15.699
+    },
+    {
+     "w": "an",
+     "start": 15.745,
+     "end": 15.959
+    },
+    {
+     "w": "eight",
+     "start": 15.977,
+     "end": 16.356
+    },
+    {
+     "w": "percent",
+     "start": 16.389,
+     "end": 16.919
+    },
+    {
+     "w": "average",
+     "start": 16.965,
+     "end": 17.496
+    },
+    {
+     "w": "annual",
+     "start": 17.542,
+     "end": 17.997
+    },
+    {
+     "w": "return,",
+     "start": 18.036,
+     "end": 18.491
+    },
+    {
+     "w": "which",
+     "start": 18.68,
+     "end": 19.059
+    },
+    {
+     "w": "is",
+     "start": 19.092,
+     "end": 19.306
+    },
+    {
+     "w": "not",
+     "start": 19.324,
+     "end": 19.552
+    },
+    {
+     "w": "guaranteed.",
+     "start": 19.571,
+     "end": 20.329
+    }
+   ]
+  },
+  {
+   "text": "Now flip it around.",
+   "start": 21.295,
+   "end": 22.558,
+   "words": [
+    {
+     "w": "Now",
+     "start": 21.295,
+     "end": 21.522
+    },
+    {
+     "w": "flip",
+     "start": 21.542,
+     "end": 21.845
+    },
+    {
+     "w": "it",
+     "start": 21.872,
+     "end": 22.085
+    },
+    {
+     "w": "around.",
+     "start": 22.104,
+     "end": 22.558
+    }
+   ]
+  },
+  {
+   "text": "Pay only the minimum on a five thousand dollar card, and the interest alone costs you thousands.",
+   "start": 22.898,
+   "end": 29.63,
+   "words": [
+    {
+     "w": "Pay",
+     "start": 22.898,
+     "end": 23.125
+    },
+    {
+     "w": "only",
+     "start": 23.145,
+     "end": 23.448
+    },
+    {
+     "w": "the",
+     "start": 23.475,
+     "end": 23.702
+    },
+    {
+     "w": "minimum",
+     "start": 23.722,
+     "end": 24.252
+    },
+    {
+     "w": "on",
+     "start": 24.298,
+     "end": 24.512
+    },
+    {
+     "w": "a",
+     "start": 24.53,
+     "end": 24.744
+    },
+    {
+     "w": "five",
+     "start": 24.763,
+     "end": 25.066
+    },
+    {
+     "w": "thousand",
+     "start": 25.092,
+     "end": 25.698
+    },
+    {
+     "w": "dollar",
+     "start": 25.751,
+     "end": 26.206
+    },
+    {
+     "w": "card,",
+     "start": 26.245,
+     "end": 26.548
+    },
+    {
+     "w": "and",
+     "start": 26.725,
+     "end": 26.952
+    },
+    {
+     "w": "the",
+     "start": 26.972,
+     "end": 27.199
+    },
+    {
+     "w": "interest",
+     "start": 27.219,
+     "end": 27.825
+    },
+    {
+     "w": "alone",
+     "start": 27.878,
+     "end": 28.257
+    },
+    {
+     "w": "costs",
+     "start": 28.289,
+     "end": 28.668
+    },
+    {
+     "w": "you",
+     "start": 28.701,
+     "end": 28.929
+    },
+    {
+     "w": "thousands.",
+     "start": 28.948,
+     "end": 29.63
+    }
+   ]
+  }
+ ]
+}

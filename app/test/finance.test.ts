@@ -4,7 +4,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   amortize, annuityFV, cagr, doublingYears, futureValue, growthSeries, loanPayment, minimumPayment, realValue, ruleOf72, valueAt, yearly,
 } from '../src/finance/money';
-import { mult, num, pct, pts, usd, years } from '../src/finance/format';
+import { mult, num, padToFinal, pct, pts, usd, years } from '../src/finance/format';
 
 const cents = (x: number) => Math.round(x * 100) / 100;
 
@@ -106,5 +106,15 @@ describe('format (style guide §4)', () => {
     expect(num(-1500)).toBe('−1,500');
     expect(mult(2.4)).toBe('2.4×');
     expect(years(1990, 2025)).toBe('1990–2025');
+  });
+});
+
+describe('counter padding (big-number)', () => {
+  test('lays the count out in the final shape', () => {
+    expect(padToFinal('$2,823', '$149,036')).toEqual(['$', '00', '2,823']);
+    expect(padToFinal('$0', '$149,036')).toEqual(['$', '000,00', '0']);
+    expect(padToFinal('$149,036', '$149,036')).toEqual(['', '', '$149,036']);
+    expect(padToFinal('3.2%', '8.0%')).toEqual(['', '', '3.2%']);
+    expect(padToFinal('$950', '$1.2M')).toEqual(['', '', '$950']);
   });
 });

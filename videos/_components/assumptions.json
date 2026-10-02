@@ -1,0 +1,4 @@
+{
+  "hundredAMonth": { "contribution": 100, "rate": 0.08, "years": 30, "n": 12 },
+  "card": { "balance": 5000, "apr": 0.24, "minPercent": 0.01, "minFloor": 25, "plusInterest": true }
+}

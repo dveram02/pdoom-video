@@ -192,7 +192,7 @@ Video charts aren't interactive, so **direct labels do the job of tooltips**.
 
 | Param | P(doom) default | Finance |
 |---|---|---|
-| `bloom` | 0.55 | 0.15 (gold highlights only) |
+| `bloom` | 0.55, threshold 0.85 | 0.15, threshold 1.0: only HDR highlights above white bloom; flat type and charts never do |
 | `halation` | 0.25 | 0 |
 | `ca` (chromatic aberration) | 1.2 | 0 |
 | `grain` | 0.055 | 0.008 (just enough to stop banding in dark gradients) |

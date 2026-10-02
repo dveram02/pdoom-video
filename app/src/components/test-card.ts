@@ -8,7 +8,7 @@ import { LIN, rgba } from '../engine/palette';
 import { F, font } from '../engine/type';
 import { SAFE } from '../engine/hud';
 import { Narration } from '../engine/narration';
-import { ease, prog } from '../engine/util';
+import { ease, frameTime, prog } from '../engine/util';
 import { growthSeries, usd, valueAt, yearly, type GrowthPoint } from '../finance';
 import type * as THREE from 'three';
 
@@ -59,7 +59,7 @@ export default class TestCard extends Scene {
       let x = SAFE;
       const y = 1080 - SAFE - 110;
       for (const w of l.words) {
-        const k = Narration.wordProgress(w, f.t);
+        const k = Narration.wordProgress(w, frameTime(f.t)); // text: one state per frame
         c.fillStyle = k > 0 ? rgba('bone', 0.35 + 0.65 * Math.min(1, k * 3)) : rgba('graphite');
         const s = w.w + ' ';
         const ww = c.measureText(s).width;
@@ -72,8 +72,10 @@ export default class TestCard extends Scene {
   }
 
   private growth(c: CanvasRenderingContext2D, t: number) {
-    const year = this.years * prog(t, this.startT, this.landT, ease.inOutCubic);
-    const bal = valueAt(this.series, year), put = valueAt(this.series, year, 'contributed');
+    const yearAt = (x: number) => this.years * prog(x, this.startT, this.landT, ease.inOutCubic);
+    // the line moves with continuous t (real motion, motion-blurred); the digits hold one value per frame
+    const year = yearAt(t), yearShown = yearAt(frameTime(t));
+    const bal = valueAt(this.series, yearShown), put = valueAt(this.series, yearShown, 'contributed');
     // counter: tabular figures, so the digits don't jitter while counting
     c.font = font(F.num(100, 900), 160);
     c.fillStyle = rgba('goldHi');
@@ -81,7 +83,7 @@ export default class TestCard extends Scene {
     c.font = font(F.mono(500), 26);
     c.letterSpacing = '2px';
     c.fillStyle = rgba('ash');
-    c.fillText(`YEAR ${Math.floor(year + 1e-6)}  ·  YOU PUT IN ${usd(put)}  ·  GROWTH ${usd(bal - put, { sign: true })}`, SAFE, 530);
+    c.fillText(`YEAR ${Math.floor(yearShown + 1e-6)}  ·  YOU PUT IN ${usd(put)}  ·  GROWTH ${usd(bal - put, { sign: true })}`, SAFE, 530);
     c.letterSpacing = '0px';
 
     // line chart, drawn up to `year`: grey contributions, gold balance, one y-axis
@@ -103,6 +105,6 @@ export default class TestCard extends Scene {
     line('contributed', rgba('ash'));
     line('balance', rgba('gold'));
     c.fillStyle = rgba('goldHi');
-    c.beginPath(); c.arc(X(year), Y(bal), 8, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(X(year), Y(valueAt(this.series, year)), 8, 0, Math.PI * 2); c.fill();
   }
 }

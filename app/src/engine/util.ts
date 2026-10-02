@@ -79,6 +79,14 @@ export function mulberry32(seed: number) {
  */
 export const frameIdx = (t: number) => Math.round(t * 60);
 
+/**
+ * t snapped to its frame (constant over the frame's shutter). Use it for anything that should show ONE state
+ * per frame rather than motion: **counter digits and other changing text**. Driven by raw t, a counting number
+ * differs in every motion-blur sub-frame: the digits smear, and the adaptive sampler, seeing an edge that never
+ * converges, runs every frame to the maximum sub-frame count (measured: 324 instead of 12, ~25x the render time).
+ */
+export const frameTime = (t: number) => frameIdx(t) / 60;
+
 /** Stateless hash of integers/floats to [0,1). */
 export function hash(...xs: number[]) {
   let h = 2166136261 >>> 0;

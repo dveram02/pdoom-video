@@ -53,7 +53,7 @@ Rules:
 - `ctx.params` holds the timeline entry's params (one module can serve several entries); `ctx.start/ctx.end` its window; `f.lt`/`f.p` local time/progress.
 - Transitions: by default the engine crossfades overlapping entries. For custom transitions set `handlesTransition = true` and composite `f.under` (the previous scene's frame) yourself using `f.tin` (0→1 over the overlap). Most cuts should be hard cuts on downbeats (no overlap) — that's the default when windows touch.
 - Post overrides you can return: `exposure, bloom, bloomThreshold, bloomKnee, bloomRadius, halation, ca, grain, vignette, hud (HUD opacity), paper (light scene: HUD in ink), fade, flash, shake:[x,y], zoom, invert`. Defaults (the finance preset: no halation or CA, minimal grain) in `src/engine/post.ts`.
-- Performance: aim for < 25 ms/frame. Canvas2D layers cost ~2–4 ms to upload each; don't use more than 2–3 per scene. Precompute in `init()`.
+- Performance: aim for < 25 ms/frame (measure with `bun scripts/render.ts perf --video <id> --from A --to B`). A Canvas2D layer upload costs ~1 ms on Windows/D3D11 now that layers are RGBA8 textures decoded in the shader (an sRGB texture format cost ~29 ms). Don't use more than 2–3 layers per scene. Precompute in `init()`. A custom shader that samples a `Layer2D` texture must decode it with `toLinear()` (`isSRGBEncoded(tex)` in `gl.ts`); the Compositor does this already.
 - Keep component helpers next to the component (`components/<name>-*.ts`), or in a shared module when two components need them.
 
 ## Toolbox
@@ -95,6 +95,7 @@ The export renders every frame as the average of many sub-frames spread over the
 What this asks of scenes:
 
 - Sub-frames are rendered out of time order and in any number: a scene's output must depend on `f.t` only. `stateful` scenes can't be sampled adaptively (the engine refuses); nothing may count `render()` calls.
+- **Counters and any changing text read `frameTime(t)`** (`util.ts`: t snapped to its frame), never raw `t`. A number counting with raw `t` differs in every sub-frame: its digits smear and the adaptive sampler runs that frame to 324 sub-frames (measured: a 6 s clip took 443 s instead of 51 s). Things that really move (a line drawing in, a camera) keep raw `t` and get motion blur.
 - Per-frame flicker and jitter keyed to 60 fps must use `frameIdx(t)` (`util.ts`), not `Math.floor(t * 60)`. `frameIdx` is constant over the frame's shutter; `floor` switches at the frame's own time and double-exposes two states in every frame.
 - Noise that changes with continuous `t` (a hash seeded by time) is resampled in every sub-frame: it averages out, but slowly, and makes the adaptive sampler work harder. Seed it with `frameIdx(t)` unless it is meant to smooth out.
 - An emitter whose rate varies over time passes the rate as a function of the birth time: a rate read at the current `t` re-times every particle from one sub-frame to the next.

@@ -58,6 +58,8 @@ into visual explanations. You're not decorating a voice-over: the visuals should
   `ctx.narration.phrase('...')`. Then re-recording the voice re-times the edit automatically.
 - Lay out in **1920×1080 logical px**. 4K (`--scale 2`) must look identical, only sharper.
 - `render()` must fully overwrite `out`. Colours are **linear** in GL. Use palette tokens, not ad-hoc hex values.
+- **Counters and changing text use `frameTime(f.t)`** (one value per frame); only real motion uses raw `f.t`. Raw-`t` digits
+  smear under motion blur and make final renders ~9× slower.
 - Use at most 2–3 `Layer2D` canvases per scene. Precompute in `init()`. Aim for < 25 ms per frame.
 - One scene module can serve many timeline entries through `ctx.params`. Prefer parameterised, reusable
   components (BigNumber, LineChart, …) over one-off scenes.

@@ -33,14 +33,15 @@ export interface PostParams {
   invert: number; // 0..1 invert (ink <-> bone), applied before grain
 }
 
-// The finance preset (docs/FINANCE_STYLE_GUIDE.md §8): crisp type and charts. Bloom only catches gold
-// highlights pushed past the threshold; no halation or chromatic aberration; grain just enough to keep dark
-// gradients from banding. A scene can still override any of these for a moment.
+// The finance preset (docs/FINANCE_STYLE_GUIDE.md §8): crisp type and charts. Bloom only catches HDR highlights
+// above 1.0 linear (a GL glow core pushed past white), so flat Canvas2D type and charts never bloom (bone is ~0.88
+// linear: with a 0.9 threshold and a 0.4 knee it grew a visible halo); no halation or chromatic aberration; grain
+// just enough to keep dark gradients from banding. A scene can still override any of these for a moment.
 export const DEFAULT_POST: PostParams = {
   exposure: 1,
   bloom: 0.15,
-  bloomThreshold: 0.9,
-  bloomKnee: 0.4,
+  bloomThreshold: 1.0,
+  bloomKnee: 0.1,
   bloomRadius: 0.7,
   halation: 0,
   ca: 0,
@@ -134,8 +135,9 @@ ${SCALE === 1 ? `        c += texture(src, vUv + texel * vec2(-1, -1)).rgb; c +=
         col += vec3(1.0, 0.18, 0.04) * luma(ha) * halation;
         col *= exposure;
         // HUD is composited in linear space before the shoulder so it gets grain & vignette too
+        // (the HUD is a Layer2D: sRGB-encoded RGBA8 with straight alpha)
         vec4 h = texture(hudTex, vUv);
-        col = mix(col, h.rgb / max(h.a, 1e-4), h.a * hud);
+        col = mix(col, toLinear(h.rgb), h.a * hud);
         col = shoulder(col);
         col = mix(col, vec3(0.8515) - col * 0.84, invert); // ink<->bone in linear-ish space
         col += C_BONE * flash;

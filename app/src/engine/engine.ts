@@ -34,6 +34,9 @@ export interface TimelineEntry {
 
 interface Loaded { entry: TimelineEntry; scene: Scene | null; error?: string; lastT: number }
 
+/** Read frames back with a blocking readPixels instead of the pixel-pack buffer + fence (see readPixelsAsync). */
+const SYNC_READBACK = /Windows/.test(navigator.userAgent);
+
 /**
  * Per-frame adaptive motion-blur sampling (see Engine.render): the sub-frame count steps through
  * 4, 12, 36, 108, 324 … from `min` up to at most `max` (both rounded to that series) until the frame's
@@ -373,6 +376,9 @@ export class Engine {
    * readPixels: several times faster in Chrome (~15 ms instead of ~40 ms at 1080p, ~150 ms at 4K).
    */
   async readPixelsAsync(buf?: Uint8Array) {
+    // On Windows (ANGLE D3D11) the fence polling costs more than it saves: a blocking read measured ~12 ms per
+    // 1080p frame faster there. The pixel-pack path stays on macOS, where it was measured faster.
+    if (SYNC_READBACK) return this.readPixels(buf);
     const out = buf ?? new Uint8Array(PW * PH * 4);
     await this.renderer.readRenderTargetPixelsAsync(this.finalRT, 0, 0, PW, PH, out);
     return out;
