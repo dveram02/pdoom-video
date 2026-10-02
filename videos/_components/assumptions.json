@@ -1,4 +1,23 @@
 {
-  "hundredAMonth": { "contribution": 100, "rate": 0.08, "years": 30, "n": 12 },
-  "card": { "balance": 5000, "apr": 0.24, "minPercent": 0.01, "minFloor": 25, "plusInterest": true }
+  "hundredAMonth": {
+    "contribution": 100,
+    "rate": 0.08,
+    "years": 30,
+    "n": 12
+  },
+  "card": {
+    "balance": 5000,
+    "apr": 0.24,
+    "minPercent": 0.01,
+    "minFloor": 25,
+    "plusInterest": true
+  },
+  "savers": {
+    "contribution": 300,
+    "rate": 0.08,
+    "retireAge": 65,
+    "sarahStart": 25,
+    "michaelStart": 35,
+    "n": 12
+  }
 }

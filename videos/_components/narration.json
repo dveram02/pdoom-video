@@ -23,6 +23,14 @@
   {
    "title": "Debt",
    "start": 21.295
+  },
+  {
+   "title": "Line chart",
+   "start": 30.59
+  },
+  {
+   "title": "Two savers",
+   "start": 40.393
   }
  ],
  "lines": [
@@ -365,6 +373,226 @@
      "w": "thousands.",
      "start": 28.948,
      "end": 29.63
+    }
+   ]
+  },
+  {
+   "text": "Watch one hundred dollars a month grow for thirty years.",
+   "start": 30.59,
+   "end": 34.495,
+   "words": [
+    {
+     "w": "Watch",
+     "start": 30.59,
+     "end": 30.968
+    },
+    {
+     "w": "one",
+     "start": 31.001,
+     "end": 31.229
+    },
+    {
+     "w": "hundred",
+     "start": 31.248,
+     "end": 31.779
+    },
+    {
+     "w": "dollars",
+     "start": 31.825,
+     "end": 32.355
+    },
+    {
+     "w": "a",
+     "start": 32.402,
+     "end": 32.615
+    },
+    {
+     "w": "month",
+     "start": 32.634,
+     "end": 33.013
+    },
+    {
+     "w": "grow",
+     "start": 33.046,
+     "end": 33.349
+    },
+    {
+     "w": "for",
+     "start": 33.375,
+     "end": 33.602
+    },
+    {
+     "w": "thirty",
+     "start": 33.622,
+     "end": 34.077
+    },
+    {
+     "w": "years.",
+     "start": 34.116,
+     "end": 34.495
+    }
+   ]
+  },
+  {
+   "text": "Somewhere along the way, the account passes double what you put in.",
+   "start": 34.828,
+   "end": 39.475,
+   "words": [
+    {
+     "w": "Somewhere",
+     "start": 34.828,
+     "end": 35.51
+    },
+    {
+     "w": "along",
+     "start": 35.569,
+     "end": 35.948
+    },
+    {
+     "w": "the",
+     "start": 35.981,
+     "end": 36.208
+    },
+    {
+     "w": "way,",
+     "start": 36.228,
+     "end": 36.456
+    },
+    {
+     "w": "the",
+     "start": 36.625,
+     "end": 36.853
+    },
+    {
+     "w": "account",
+     "start": 36.872,
+     "end": 37.403
+    },
+    {
+     "w": "passes",
+     "start": 37.449,
+     "end": 37.904
+    },
+    {
+     "w": "double",
+     "start": 37.943,
+     "end": 38.398
+    },
+    {
+     "w": "what",
+     "start": 38.437,
+     "end": 38.74
+    },
+    {
+     "w": "you",
+     "start": 38.767,
+     "end": 38.994
+    },
+    {
+     "w": "put",
+     "start": 39.014,
+     "end": 39.241
+    },
+    {
+     "w": "in.",
+     "start": 39.261,
+     "end": 39.475
+    }
+   ]
+  },
+  {
+   "text": "Sarah starts investing at twenty-five.",
+   "start": 40.393,
+   "end": 43.03,
+   "words": [
+    {
+     "w": "Sarah",
+     "start": 40.393,
+     "end": 40.772
+    },
+    {
+     "w": "starts",
+     "start": 40.805,
+     "end": 41.26
+    },
+    {
+     "w": "investing",
+     "start": 41.299,
+     "end": 41.981
+    },
+    {
+     "w": "at",
+     "start": 42.04,
+     "end": 42.254
+    },
+    {
+     "w": "twenty-five.",
+     "start": 42.273,
+     "end": 43.03
+    }
+   ]
+  },
+  {
+   "text": "Michael waits until thirty-five.",
+   "start": 43.396,
+   "end": 45.554,
+   "words": [
+    {
+     "w": "Michael",
+     "start": 43.396,
+     "end": 43.927
+    },
+    {
+     "w": "waits",
+     "start": 43.973,
+     "end": 44.352
+    },
+    {
+     "w": "until",
+     "start": 44.385,
+     "end": 44.763
+    },
+    {
+     "w": "thirty-five.",
+     "start": 44.796,
+     "end": 45.554
+    }
+   ]
+  },
+  {
+   "text": "By sixty-five, the gap is enormous.",
+   "start": 45.92,
+   "end": 48.376,
+   "words": [
+    {
+     "w": "By",
+     "start": 45.92,
+     "end": 46.134
+    },
+    {
+     "w": "sixty-five,",
+     "start": 46.152,
+     "end": 46.834
+    },
+    {
+     "w": "the",
+     "start": 47.043,
+     "end": 47.271
+    },
+    {
+     "w": "gap",
+     "start": 47.291,
+     "end": 47.518
+    },
+    {
+     "w": "is",
+     "start": 47.538,
+     "end": 47.751
+    },
+    {
+     "w": "enormous.",
+     "start": 47.77,
+     "end": 48.376
     }
    ]
   }
