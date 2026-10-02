@@ -1,6 +1,6 @@
 // Component gallery: each section shows one component variant. Values are computed from assumptions.json.
 import type { MakeTimeline } from '@engine/timeline';
-import { amortize, growthSeries, minimumPayment } from '@engine/finance';
+import { amortize, growthSeries, minimumPayment, yearly } from '@engine/finance';
 import type { GrowthPoint } from '@engine/finance';
 
 const timeline: MakeTimeline = ({ E, at, duration, video }) => {
@@ -11,7 +11,7 @@ const timeline: MakeTimeline = ({ E, at, duration, video }) => {
   const hypo = { note: 'Hypothetical · 8% avg annual return · not guaranteed' };
 
   const s1 = 0, s2 = at('Over thirty years'), s3 = at('But the account'), s4 = at('That assumes'), s5 = at('Now flip it');
-  const s6 = at('Watch one hundred'), s7 = at('Sarah starts');
+  const s6 = at('Watch one hundred'), s7 = at('Sarah starts'), s8 = at('Every five years'), s9 = at('On a timeline'), s10 = at('At retirement'), s11 = at('The lesson is simple', { lead: 0.6 });
 
   // line chart: $100/month for 30 years, and the first year the account holds double the contributions
   const series = growthSeries(a);
@@ -20,6 +20,7 @@ const timeline: MakeTimeline = ({ E, at, duration, video }) => {
   const sv = video.assumptions.savers;
   const saver = (startAge: number) => growthSeries({ contribution: sv.contribution, rate: sv.rate, years: sv.retireAge - startAge, n: sv.n })
     .map((p: GrowthPoint) => [startAge + p.year, p.balance] as [number, number]);
+  const sarahEnd = saver(sv.sarahStart).at(-1)![1], michaelEnd = saver(sv.michaelStart).at(-1)![1];
   return [
     E('reveal', 'big-number', s1, s2, { value: a.contribution, from: a.contribution, label: 'Every month', countOn: 0 }),
     E('contributions', 'big-number', s2, s3, {
@@ -45,7 +46,7 @@ const timeline: MakeTimeline = ({ E, at, duration, video }) => {
       ],
       notes: [{ series: 'bal', x: doubled.year, text: `Year ${Math.ceil(doubled.year)}: double what you put in`, on: 'double what you put in' }],
     }, hypo),
-    E('savers', 'line-chart', s7, duration, {
+    E('savers', 'line-chart', s7, s8, {
       kicker: `Hypothetical · $${sv.contribution}/month at ${sv.rate * 100}%`, title: 'Starting 10 years later',
       x: { from: sv.sarahStart, to: sv.retireAge, label: 'Age', step: 5 },
       y: { format: 'usdCompact' },
@@ -54,6 +55,41 @@ const timeline: MakeTimeline = ({ E, at, duration, video }) => {
         { id: 'michael', label: 'Michael, from 35', points: saver(sv.michaelStart), drawOn: 'Michael waits', drawTo: 'sixty-five', ease: 'linear' },
       ],
     }, hypo),
+    E('bars', 'stacked-bar', s8, s9, {
+      kicker: 'Hypothetical · $100 a month at 8%', title: 'What you put in, and what it grew',
+      segments: [{ key: 'put', label: 'You put in', color: 'ash' }, { key: 'grew', label: 'Growth', color: 'gold' }],
+      bars: yearly(series).filter((p) => p.year > 0 && p.year % 5 === 0).map((p) => ({ label: `Year ${p.year}`, values: { put: p.contributed, grew: p.growth } })),
+      buildOn: 'Every five years', buildTo: 'what it grew',
+      breakdown: { bar: -1, on: 'most of the money' },
+    }, hypo),
+    E('ages', 'timeline', s9, s10, {
+      kicker: 'Same $300 a month', title: 'Ten years apart',
+      x: { from: 20, to: 70, step: 5, label: 'Age' },
+      spans: [
+        { label: 'Sarah invests', from: sv.sarahStart, to: sv.retireAge, color: 'gold', drawOn: 'Sarah invests', drawTo: 'to sixty-five' },
+        { label: 'Michael invests', from: sv.michaelStart, to: sv.retireAge, color: 'blue', drawOn: 'Michael only begins', drawTo: 'ten years later' },
+      ],
+      markers: [
+        { at: sv.sarahStart, label: 'Sarah starts', sub: `Age ${sv.sarahStart}`, on: 'Sarah invests' },
+        { at: sv.michaelStart, label: 'Michael starts', sub: `Age ${sv.michaelStart}`, on: 'Michael only begins' },
+        { at: sv.retireAge, label: 'Retirement', sub: `Age ${sv.retireAge}`, on: 'to sixty-five' },
+      ],
+    }),
+    E('compare', 'comparison', s10, s11, {
+      kicker: `Hypothetical · $${sv.contribution}/month at ${sv.rate * 100}%`, title: 'At 65',
+      left: { label: 'Sarah', sub: `Starts at ${sv.sarahStart}`, value: sarahEnd, color: 'gold', rows: [
+        { label: 'Put in', value: sv.contribution * 12 * (sv.retireAge - sv.sarahStart) },
+        { label: 'Years investing', value: sv.retireAge - sv.sarahStart, format: 'num' },
+      ] },
+      right: { label: 'Michael', sub: `Starts at ${sv.michaelStart}`, value: michaelEnd, color: 'blue', rows: [
+        { label: 'Put in', value: sv.contribution * 12 * (sv.retireAge - sv.michaelStart) },
+        { label: 'Years investing', value: sv.retireAge - sv.michaelStart, format: 'num' },
+      ] },
+      countOn: 'At retirement', landOn: 'four hundred forty-seven thousand',
+      gap: { label: 'The cost of waiting 10 years', on: 'Waiting ten years', ratio: true },
+    }, hypo),
+    E('chapter', 'chapter-card', s11, at('Time does')),
+    E('takeaway', 'key-takeaway', at('Time does'), duration, { text: 'Time does the heavy lifting.', highlight: 'Time', on: 'Time does' }),
   ];
 };
 export default timeline;

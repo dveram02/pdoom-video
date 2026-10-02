@@ -20,8 +20,12 @@ into visual explanations. You're not decorating a voice-over: the visuals should
 ## Current state (update as `docs/STEPS.md` progresses)
 
 - Branch `finance-channel`. `main` is the untouched original.
-- Parts A (Windows setup), B (docs) and C (engine generalized for narration) are done. **Part D (component library) is next.**
-- Videos live in `videos/<id>/` (format: `videos/README.md`). `videos/_engine-test` is the pipeline test.
+- Parts A–D are done (Windows setup, docs, engine generalized for narration, component library).
+  **Part E (the 60-second prototype "$100 a Month for 30 Years") is next.**
+- Videos live in `videos/<id>/` (format: `videos/README.md`). `videos/_engine-test` is the pipeline test and
+  `videos/_components` the component gallery (every component and variant, for review).
+- Components (`app/src/components/`, index in `docs/ENGINE.md`): big-number, line-chart, stacked-bar, timeline,
+  comparison, chapter-card, key-takeaway. Build videos from these, and add a component when a video needs one.
 - New components go in `app/src/components/`. The music video's song, scenes and analysis tools were removed from
   this branch. They're still on `main` (`git show main:<path>`) if a technique is ever worth looking up.
 

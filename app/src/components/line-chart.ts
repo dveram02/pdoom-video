@@ -28,7 +28,7 @@ import { LIN, SERIES, rgba, type PaletteKey } from '../engine/palette';
 import { F, font } from '../engine/type';
 import { SAFE } from '../engine/hud';
 import { clamp, ease, frameTime, prog } from '../engine/util';
-import { cueTime, drawMono, fmt, type Cue, type NumFormat } from './_kit';
+import { cueTime, drawLegend, drawMono, drawYGrid, fmt, interp, niceMax, niceStep, type Cue, type NumFormat } from './_kit';
 
 type EaseName = 'inOutCubic' | 'linear' | 'outCubic';
 interface SeriesP {
@@ -44,29 +44,6 @@ interface Params {
   legend?: boolean;
 }
 interface SeriesR extends SeriesP { color: PaletteKey; t0: number; t1: number; fn: (x: number) => number }
-
-/** A "nice" tick step for a range split into ~n parts: 1, 2, 2.5 or 5 × 10^k. */
-export function niceStep(range: number, n = 4): number {
-  const raw = range / n, k = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / k;
-  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * k;
-}
-/** The top of an axis that holds `v` with nice ticks (≥ v, a whole number of nice steps). */
-export function niceMax(v: number, n = 4): number {
-  if (v <= 0) return 1;
-  const s = niceStep(v, n);
-  return Math.ceil(v / s - 1e-9) * s;
-}
-
-/** y at x along a polyline (x ascending), clamped to its ends. */
-function interp(pts: [number, number][], x: number): number {
-  if (x <= pts[0]![0]) return pts[0]![1];
-  const last = pts[pts.length - 1]!;
-  if (x >= last[0]) return last[1];
-  let lo = 0, hi = pts.length - 1;
-  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (pts[m]![0] <= x) lo = m; else hi = m; }
-  const a = pts[lo]!, b = pts[hi]!;
-  return a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]);
-}
 
 /** Seconds a y-axis rescale takes (eased). */
 const RESCALE = 0.6;
@@ -160,20 +137,7 @@ export default class LineChart extends Scene {
 
     // grid: horizontal hairlines draw in left to right; tick labels fade (old set out, new set in while rescaling)
     const gridK = prog(t, start + 0.1, start + 0.6, ease.outCubic);
-    for (const [max, a] of yAx.tickSets) {
-      const step = niceStep(max - this.yMin);
-      for (let v = this.yMin; v <= max + 1e-9; v += step) {
-        const y = Y(v);
-        if (y < PT - 2) continue;
-        c.strokeStyle = rgba('rule', a);
-        c.lineWidth = 1;
-        c.beginPath(); c.moveTo(PL, Math.round(y) + 0.5); c.lineTo(PL + (PR - PL) * gridK, Math.round(y) + 0.5); c.stroke();
-        c.save(); c.globalAlpha = a * enter;
-        c.font = font(F.mono(400), 24); c.fillStyle = rgba('ash'); c.textAlign = 'right';
-        c.fillText(fmt(v, yFmt), PL - 20, y + 8);
-        c.restore();
-      }
-    }
+    for (const [max, a] of yAx.tickSets) drawYGrid(c, { left: PL, right: PR, top: PT, Y, min: this.yMin, max, format: yFmt, alpha: a, labelAlpha: a * enter, draw: gridK });
     // x ticks: numbers under the axis, axis title at the right end
     const xs = p.x.step ?? niceStep(x1 - x0, 6);
     c.save(); c.globalAlpha = enter;
@@ -230,21 +194,7 @@ export default class LineChart extends Scene {
     }
 
     // legend (≥ 2 series): swatch + label, top right
-    if (p.legend ?? this.series.length >= 2) {
-      let lx = PR + 200;
-      c.save(); c.globalAlpha = enter;
-      c.font = font(F.archivo(100, 500), 26); c.textAlign = 'left';
-      for (const s of [...this.series].reverse()) {
-        const label = s.label ?? s.id, w = c.measureText(label).width;
-        lx -= w;
-        c.fillStyle = rgba('ash'); c.fillText(label, lx, SAFE + 26);
-        lx -= 34;
-        c.strokeStyle = rgba(s.color); c.lineWidth = 4; c.lineCap = 'round';
-        c.beginPath(); c.moveTo(lx, SAFE + 17); c.lineTo(lx + 22, SAFE + 17); c.stroke();
-        lx -= 32;
-      }
-      c.restore();
-    }
+    if (p.legend ?? this.series.length >= 2) drawLegend(c, this.series.map((s) => ({ label: s.label ?? s.id, color: s.color })), PR + 200, SAFE + 26, enter);
 
     // callouts
     for (const nt of p.notes ?? []) {

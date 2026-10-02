@@ -102,6 +102,28 @@ What this asks of scenes:
 - Shaders that supersample internally (4 rotated-grid taps) take `ssTap: SS_TAP` and `${SS_TAP_GLSL}` and loop `for (int k = ssK0(); k < ssK1(); k++) ... rgss(k)`, weighting by `ssWeight()`. The engine then hands each sub-frame one tap, cycling them (every set is a multiple of 4), which averages to the same image for a quarter of the cost. In the preview and single-sample stills they take all four.
 - Post parameters (shake, flash, zoom, fades, the HUD mode) are read at one point of the shutter, 1/8 of it after the frame's time (where the video was tuned, and a point every sample set includes); the HUD, grain and dither are drawn once per frame.
 
+## Components (`app/src/components/`)
+
+Each file's header documents its params with an example. All follow the style guide, compute nothing themselves
+(values come from `timeline.ts`, computed with `src/finance` from `assumptions.json`), anchor their motion to
+narration cues (a phrase, or seconds after the entry starts) and hold counters to one value per frame.
+`videos/_components` shows every one of them (`?video=_components`).
+
+| Component | For | Key params |
+|---|---|---|
+| `big-number` | One hero figure that counts and lands on the spoken word | `value, format, kicker, label, sub, suffix, countOn, landOn, delta, align, color` |
+| `line-chart` | Growth over time, paths compared | `series[{points, drawOn, drawTo, fill}], x, y{format, follow}, notes, title` |
+| `stacked-bar` | What you put in vs. what it grew; plain bar charts | `segments, bars[{label, values}], buildOn, buildTo, breakdown` |
+| `timeline` | Ages and years: spans and markers | `x, spans[{from, to, drawOn, drawTo}], markers[{at, label, sub, on}]` |
+| `comparison` | Two scenarios side by side and the gap | `left, right ({label, sub, value, rows}), countOn, landOn, gap{label, on, ratio}` |
+| `chapter-card` | Section title, matching the YouTube chapters | `title` (default: the script chapter), `number`, `total` |
+| `key-takeaway` | One ≤ 7-word line, key word underlined | `text, highlight, on` |
+| `test-card` | Engine pipeline test only | |
+
+Shared helpers in `components/_kit.ts`: `fmt` (NumFormat → text), `cueTime`, `drawMono`, `drawDeltaChip`,
+`drawYGrid`, `drawLegend`, `niceStep`/`niceMax` (axis ticks), `interp`. `padToFinal` (`src/finance/format.ts`) lays a
+count out in its final shape with dim leading zeros.
+
 ## Reference: the original music video
 
 The *P(doom)* music video's scenes and analysis tools were removed from the `finance-channel` branch; they're on `main`

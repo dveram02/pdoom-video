@@ -31,6 +31,22 @@
   {
    "title": "Two savers",
    "start": 40.393
+  },
+  {
+   "title": "Stacked bars",
+   "start": 49.329
+  },
+  {
+   "title": "Timeline",
+   "start": 57.838
+  },
+  {
+   "title": "Comparison",
+   "start": 67.35
+  },
+  {
+   "title": "Takeaway",
+   "start": 81.092
   }
  ],
  "lines": [
@@ -593,6 +609,444 @@
      "w": "enormous.",
      "start": 47.77,
      "end": 48.376
+    }
+   ]
+  },
+  {
+   "text": "Every five years, compare what you put in with what it grew.",
+   "start": 49.329,
+   "end": 53.458,
+   "words": [
+    {
+     "w": "Every",
+     "start": 49.329,
+     "end": 49.708
+    },
+    {
+     "w": "five",
+     "start": 49.741,
+     "end": 50.044
+    },
+    {
+     "w": "years,",
+     "start": 50.07,
+     "end": 50.449
+    },
+    {
+     "w": "compare",
+     "start": 50.632,
+     "end": 51.162
+    },
+    {
+     "w": "what",
+     "start": 51.208,
+     "end": 51.511
+    },
+    {
+     "w": "you",
+     "start": 51.538,
+     "end": 51.765
+    },
+    {
+     "w": "put",
+     "start": 51.785,
+     "end": 52.012
+    },
+    {
+     "w": "in",
+     "start": 52.032,
+     "end": 52.246
+    },
+    {
+     "w": "with",
+     "start": 52.264,
+     "end": 52.567
+    },
+    {
+     "w": "what",
+     "start": 52.594,
+     "end": 52.897
+    },
+    {
+     "w": "it",
+     "start": 52.923,
+     "end": 53.137
+    },
+    {
+     "w": "grew.",
+     "start": 53.155,
+     "end": 53.458
+    }
+   ]
+  },
+  {
+   "text": "By year thirty, most of the money is growth.",
+   "start": 53.785,
+   "end": 56.898,
+   "words": [
+    {
+     "w": "By",
+     "start": 53.785,
+     "end": 53.999
+    },
+    {
+     "w": "year",
+     "start": 54.017,
+     "end": 54.32
+    },
+    {
+     "w": "thirty,",
+     "start": 54.347,
+     "end": 54.801
+    },
+    {
+     "w": "most",
+     "start": 54.991,
+     "end": 55.294
+    },
+    {
+     "w": "of",
+     "start": 55.32,
+     "end": 55.534
+    },
+    {
+     "w": "the",
+     "start": 55.552,
+     "end": 55.78
+    },
+    {
+     "w": "money",
+     "start": 55.799,
+     "end": 56.178
+    },
+    {
+     "w": "is",
+     "start": 56.211,
+     "end": 56.425
+    },
+    {
+     "w": "growth.",
+     "start": 56.444,
+     "end": 56.898
+    }
+   ]
+  },
+  {
+   "text": "On a timeline, Sarah invests from age twenty-five to sixty-five.",
+   "start": 57.838,
+   "end": 62.414,
+   "words": [
+    {
+     "w": "On",
+     "start": 57.838,
+     "end": 58.051
+    },
+    {
+     "w": "a",
+     "start": 58.07,
+     "end": 58.284
+    },
+    {
+     "w": "timeline,",
+     "start": 58.302,
+     "end": 58.908
+    },
+    {
+     "w": "Sarah",
+     "start": 59.111,
+     "end": 59.49
+    },
+    {
+     "w": "invests",
+     "start": 59.523,
+     "end": 60.053
+    },
+    {
+     "w": "from",
+     "start": 60.099,
+     "end": 60.403
+    },
+    {
+     "w": "age",
+     "start": 60.429,
+     "end": 60.656
+    },
+    {
+     "w": "twenty-five",
+     "start": 60.676,
+     "end": 61.434
+    },
+    {
+     "w": "to",
+     "start": 61.5,
+     "end": 61.713
+    },
+    {
+     "w": "sixty-five.",
+     "start": 61.732,
+     "end": 62.414
+    }
+   ]
+  },
+  {
+   "text": "Michael only begins at thirty-five, ten years later.",
+   "start": 62.773,
+   "end": 66.417,
+   "words": [
+    {
+     "w": "Michael",
+     "start": 62.773,
+     "end": 63.304
+    },
+    {
+     "w": "only",
+     "start": 63.35,
+     "end": 63.653
+    },
+    {
+     "w": "begins",
+     "start": 63.679,
+     "end": 64.134
+    },
+    {
+     "w": "at",
+     "start": 64.173,
+     "end": 64.387
+    },
+    {
+     "w": "thirty-five,",
+     "start": 64.405,
+     "end": 65.163
+    },
+    {
+     "w": "ten",
+     "start": 65.379,
+     "end": 65.606
+    },
+    {
+     "w": "years",
+     "start": 65.626,
+     "end": 66.005
+    },
+    {
+     "w": "later.",
+     "start": 66.038,
+     "end": 66.417
+    }
+   ]
+  },
+  {
+   "text": "At retirement, Sarah has about one point zero five million dollars.",
+   "start": 67.35,
+   "end": 72.051,
+   "words": [
+    {
+     "w": "At",
+     "start": 67.35,
+     "end": 67.563
+    },
+    {
+     "w": "retirement,",
+     "start": 67.582,
+     "end": 68.34
+    },
+    {
+     "w": "Sarah",
+     "start": 68.556,
+     "end": 68.935
+    },
+    {
+     "w": "has",
+     "start": 68.967,
+     "end": 69.195
+    },
+    {
+     "w": "about",
+     "start": 69.215,
+     "end": 69.593
+    },
+    {
+     "w": "one",
+     "start": 69.626,
+     "end": 69.854
+    },
+    {
+     "w": "point",
+     "start": 69.873,
+     "end": 70.252
+    },
+    {
+     "w": "zero",
+     "start": 70.285,
+     "end": 70.588
+    },
+    {
+     "w": "five",
+     "start": 70.615,
+     "end": 70.918
+    },
+    {
+     "w": "million",
+     "start": 70.944,
+     "end": 71.475
+    },
+    {
+     "w": "dollars.",
+     "start": 71.521,
+     "end": 72.051
+    }
+   ]
+  },
+  {
+   "text": "Michael has about four hundred forty-seven thousand.",
+   "start": 72.397,
+   "end": 75.968,
+   "words": [
+    {
+     "w": "Michael",
+     "start": 72.397,
+     "end": 72.928
+    },
+    {
+     "w": "has",
+     "start": 72.974,
+     "end": 73.201
+    },
+    {
+     "w": "about",
+     "start": 73.221,
+     "end": 73.6
+    },
+    {
+     "w": "four",
+     "start": 73.633,
+     "end": 73.936
+    },
+    {
+     "w": "hundred",
+     "start": 73.962,
+     "end": 74.492
+    },
+    {
+     "w": "forty-seven",
+     "start": 74.539,
+     "end": 75.296
+    },
+    {
+     "w": "thousand.",
+     "start": 75.362,
+     "end": 75.968
+    }
+   ]
+  },
+  {
+   "text": "Waiting ten years cost him six hundred thousand dollars.",
+   "start": 76.321,
+   "end": 80.146,
+   "words": [
+    {
+     "w": "Waiting",
+     "start": 76.321,
+     "end": 76.851
+    },
+    {
+     "w": "ten",
+     "start": 76.898,
+     "end": 77.125
+    },
+    {
+     "w": "years",
+     "start": 77.145,
+     "end": 77.524
+    },
+    {
+     "w": "cost",
+     "start": 77.556,
+     "end": 77.86
+    },
+    {
+     "w": "him",
+     "start": 77.886,
+     "end": 78.113
+    },
+    {
+     "w": "six",
+     "start": 78.133,
+     "end": 78.36
+    },
+    {
+     "w": "hundred",
+     "start": 78.38,
+     "end": 78.911
+    },
+    {
+     "w": "thousand",
+     "start": 78.957,
+     "end": 79.563
+    },
+    {
+     "w": "dollars.",
+     "start": 79.616,
+     "end": 80.146
+    }
+   ]
+  },
+  {
+   "text": "The lesson is simple.",
+   "start": 81.092,
+   "end": 82.52,
+   "words": [
+    {
+     "w": "The",
+     "start": 81.092,
+     "end": 81.319
+    },
+    {
+     "w": "lesson",
+     "start": 81.339,
+     "end": 81.794
+    },
+    {
+     "w": "is",
+     "start": 81.833,
+     "end": 82.047
+    },
+    {
+     "w": "simple.",
+     "start": 82.066,
+     "end": 82.52
+    }
+   ]
+  },
+  {
+   "text": "Time does the heavy lifting.",
+   "start": 82.86,
+   "end": 84.708,
+   "words": [
+    {
+     "w": "Time",
+     "start": 82.86,
+     "end": 83.163
+    },
+    {
+     "w": "does",
+     "start": 83.189,
+     "end": 83.492
+    },
+    {
+     "w": "the",
+     "start": 83.519,
+     "end": 83.746
+    },
+    {
+     "w": "heavy",
+     "start": 83.766,
+     "end": 84.145
+    },
+    {
+     "w": "lifting.",
+     "start": 84.177,
+     "end": 84.708
     }
    ]
   }

@@ -29,3 +29,19 @@ Watch one hundred dollars a month grow for thirty years. Somewhere along the way
 ## Two savers
 
 Sarah starts investing at twenty-five. Michael waits until thirty-five. By sixty-five, the gap is enormous.
+
+## Stacked bars
+
+Every five years, compare what you put in with what it grew. By year thirty, most of the money is growth.
+
+## Timeline
+
+On a timeline, Sarah invests from age twenty-five to sixty-five. Michael only begins at thirty-five, ten years later.
+
+## Comparison
+
+At retirement, Sarah has about one point zero five million dollars. Michael has about four hundred forty-seven thousand. Waiting ten years cost him six hundred thousand dollars.
+
+## Takeaway
+
+The lesson is simple. Time does the heavy lifting.

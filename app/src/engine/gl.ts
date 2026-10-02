@@ -217,6 +217,11 @@ export class Layer2D {
     c.globalCompositeOperation = 'source-over';
     c.filter = 'none';
     c.shadowBlur = 0;
+    // text state carries over between frames too: a textAlign left at 'center' by one frame's last label
+    // would shift the next frame's first text
+    c.textAlign = 'left';
+    c.textBaseline = 'alphabetic';
+    c.letterSpacing = '0px';
     if (color) { c.fillStyle = color; c.fillRect(0, 0, this.w, this.h); }
     else c.clearRect(0, 0, this.w, this.h);
   }

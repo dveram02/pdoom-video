@@ -176,27 +176,29 @@ The per-video folder format and the timing tools are documented in **`videos/REA
 
 ---
 
-## Part D — Component library (build 5 first)
+## Part D — Component library ✅ DONE (2026-10-01)
 
-Each component is a `Scene` class driven by `ctx.params`, so one module serves many timeline entries.
-Build them in this order, with stills and contact sheets reviewed after each:
+All in `app/src/components/` (index and params: `docs/ENGINE.md` "Components"), shown in the gallery video
+`videos/_components` (preview `?video=_components`, `]` jumps between sections).
 
-1. **BigNumber / Title.** A huge counter or reveal ("$100", "10 YEARS") with a label and a subtitle.
-2. **LineChart.** Draw-in series, multiple lines (Sarah vs Michael), animated axes, end labels.
-   Use `lines.ts` `LineBatch` for crisp lines.
-3. **BarChart / StackedBar.** Contributions vs growth, built over time.
-4. **Timeline.** Ages and years, with markers that drop in on a word cue.
-5. **Comparison.** A two-column face-off with a delta callout.
-
-Later (from the ChatGPT list): MoneyFlow, DebtPaydown, InflationComparison, PortfolioAllocation,
-MarketDrawdown, CalculatorScene, KeyTakeaway, Outro/subscribe card.
-
-Reuse ideas, not visuals, from the existing scenes. Good references for techniques:
-`ascent-odo.ts` (odometer counter), `leftturn-gantt.ts` (timeline/gantt),
-`stack-kit.ts`, `dense-press.ts` (typography and layout), and `_motifs.ts` (pattern for shared motifs).
-
-Also add **object continuity** transitions (`handlesTransition = true`, compositing `f.under`) so a
-"$100" can become a bar, which becomes a curve. That kind of transition is what makes these videos look high-end.
+- [x] **Speed first:** Layer2D uploads as RGBA8 decoded in the shader (an sRGB texture cost ~29 ms per upload on
+      D3D11), blocking readback on Windows, empty HUD skips its upload: a frame went 93 → 23 ms. Counters hold one
+      value per frame (`frameTime`), so motion blur settles at 12 sub-frames: a final-quality clip went 443 → 51 s.
+- [x] **big-number**: counts on a cue and lands on the spoken word, dim leading zeros keep its width, kicker,
+      label, sub, suffix, gain/loss delta chip.
+- [x] **line-chart**: per-series draw cues and x ranges, riding end labels that avoid each other, smooth
+      look-ahead rescale (`follow`), area fill, legend, callouts.
+- [x] **stacked-bar**: bars build in sequence, grey put-in under gold growth, totals, a segment breakdown on cue.
+- [x] **timeline**: spans drawing above an age/year axis, markers dropping in below (auto-staggered).
+- [x] **comparison**: two columns counting together, detail rows, the gap (and ratio) on cue.
+- [x] **chapter-card** (title and number from the script's chapters) and **key-takeaway** (≤ 7 words, enforced).
+- [x] Engine fixes found along the way: bloom threshold 1.0 (white type had a halo), `Layer2D.clear()` resets text
+      state (alignment leaked between frames), HUD straight-alpha compositing.
+- Measured: the BigNumber gallery rendered at final quality (`--samples auto`) at ~4.3 fps, so a 7-minute video takes
+  ~1.5–2 h at final quality, or ~15–20 min as a draft.
+- Later, when a video needs them: MoneyFlow, DebtPaydown, InflationComparison, PortfolioAllocation (horizontal /
+  100% bars), MarketDrawdown, CalculatorScene, Outro/subscribe card, object-continuity transitions
+  (`handlesTransition`), log-scale charts.
 
 ---
 
@@ -286,4 +288,4 @@ Suggested first full-length topics, in order of visual simplicity: *How Compound
 2. ~~**B1–B2**: `CLAUDE.md` and `FINANCE_STYLE_GUIDE.md`.~~ ✅ Drafted. Review and edit them.
 3. ~~**B3**: decide on your voice and timestamp tool.~~ ✅ US audience. Both ElevenLabs and own voice are supported.
 4. ~~**C1–C5**: engine generalization.~~ ✅ Done, including removing the P(doom) leftovers.
-5. **D**: the first 5 components → **E**: the 60-second prototype.
+5. ~~**D**: the first 5 components.~~ ✅ Done (7 components). Next: **E**, the 60-second prototype.
