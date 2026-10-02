@@ -101,6 +101,9 @@ What this asks of scenes:
 - Shaders that supersample internally (4 rotated-grid taps) take `ssTap: SS_TAP` and `${SS_TAP_GLSL}` and loop `for (int k = ssK0(); k < ssK1(); k++) ... rgss(k)`, weighting by `ssWeight()`. The engine then hands each sub-frame one tap, cycling them (every set is a multiple of 4), which averages to the same image for a quarter of the cost. In the preview and single-sample stills they take all four.
 - Post parameters (shake, flash, zoom, fades, the HUD mode) are read at one point of the shutter, 1/8 of it after the frame's time (where the video was tuned, and a point every sample set includes); the HUD, grain and dither are drawn once per frame.
 
-## Reference: the P(doom) scenes
+## Reference: the original music video
 
-The original music video's scenes (`app/src/scenes/`, excluded from the build and the typecheck) and its treatment (`docs/TREATMENT.md`) are reference material for techniques: odometer counters (`ascent-odo.ts`), Gantt/timeline layouts (`leftturn-gantt.ts`), dense typography (`dense-press.ts`), engraving shaders, `handlesTransition` hand-offs. Reuse techniques, never their content or look.
+The *P(doom)* music video's scenes and analysis tools were removed from the `finance-channel` branch; they're on `main`
+(`git show main:app/src/scenes/<name>.ts`). Worth knowing as technique references: `ascent-odo.ts` (odometer counter),
+`leftturn-gantt.ts` (timeline/Gantt layout), `dense-press.ts` (dense typography), `bureau.ts` (paper-scene diagrams),
+and the `handlesTransition` hand-offs. Reuse techniques, never their content or look.

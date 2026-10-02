@@ -22,8 +22,8 @@ into visual explanations. You're not decorating a voice-over: the visuals should
 - Branch `finance-channel`. `main` is the untouched original.
 - Parts A (Windows setup), B (docs) and C (engine generalized for narration) are done. **Part D (component library) is next.**
 - Videos live in `videos/<id>/` (format: `videos/README.md`). `videos/_engine-test` is the pipeline test.
-- New components go in `app/src/components/`. `app/src/scenes/` is the P(doom) originals, kept as technique
-  reference only (excluded from the build). They, the song (`audio/`, `lyrics/`, `data/`) and the plates are due to be deleted.
+- New components go in `app/src/components/`. The music video's song, scenes and analysis tools were removed from
+  this branch. They're still on `main` (`git show main:<path>`) if a technique is ever worth looking up.
 
 ## Channel decisions
 
@@ -89,6 +89,6 @@ into visual explanations. You're not decorating a voice-over: the visuals should
 ## Don'ts
 
 - Don't carry P(doom) content into finance videos: the P(doom) counter, the orange spark, the mask, AI motifs, lyrics or characters.
-- Don't use the song, the lyrics or `data/lyrics.json` in anything published. They're not MIT-licensed.
+- Don't bring the music video's song or lyrics (on `main`) into anything published. They're not MIT-licensed.
 - Don't use generic AI imagery, stock-footage aesthetics, crypto-neon, random particles, emoji or cartoon mascots.
 - Don't commit or push unless the user asks.

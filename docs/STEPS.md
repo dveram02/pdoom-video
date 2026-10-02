@@ -116,7 +116,8 @@ Have Claude draft it, then you edit it. Lock in the following:
     monetized use. Check YouTube's synthetic-content disclosure rules at upload.
   - **Path 2, own voice:** record `narration.wav` (48 kHz, mono, quiet room) plus `script.md` →
     **WhisperX forced alignment against the script text**, not free transcription, so the words match the script
-    exactly. Reuse the uv setup in `analysis/` (adapt `whisper_run.py` / `ctcalign.py`).
+    exactly. Run WhisperX directly (e.g. `uvx whisperx narration.wav --output_format json`); the music video's
+     `analysis/` tools were song-specific and are only on `main`.
 - [ ] Build both converters as part of **C2** (to be done then, not now). Output in the **same shape as `data/lyrics.json`**
       (`lines[] → {text,start,end,words[{w,start,end}]}`, one line per sentence), so the `Lyrics` helpers
       (`get`, `wordProgress`, `lineCharProgress`) work unchanged.
@@ -124,7 +125,7 @@ Have Claude draft it, then you edit it. Lock in the following:
 
 ---
 
-## Part C — Generalize the engine ✅ DONE (2026-10-01; one item waiting on you, see C3)
+## Part C — Generalize the engine ✅ DONE (2026-10-01)
 
 The per-video folder format and the timing tools are documented in **`videos/README.md`**. The engine API is in `docs/ENGINE.md`.
 
@@ -148,14 +149,13 @@ The per-video folder format and the timing tools are documented in **`videos/REA
 - [x] **`scripts/narration.ts`**: `estimate` (from script.md, no audio), `from-elevenlabs` (+ `--audio-out`),
       `from-whisperx` (interpolates untimed words), `analyze`, `srt` (captions), `chapters` (YouTube list + checks).
 
-### C3. P(doom) layer out of the engine ✅ (file removal waiting on you)
+### C3. P(doom) layer out of the engine ✅
 - [x] HUD = the small print only: `note` (hypothetical/assumptions) + `SOURCE: …`, bottom-left on the title-safe margin.
       The P(doom) readout, crop marks and captions are gone. `post.paper` switches it to ink.
 - [x] P(doom) scenes are excluded from the build and the typecheck (`tsconfig` `exclude`). New components live in `src/components/`.
       `plates` mode was removed from `render.ts`, and `window.__pdoom` became `window.__engine`.
-- [ ] **Delete the leftovers** (auto mode blocked the bulk delete, so this needs your go-ahead): `audio/pdoom.mp3`, `lyrics/`,
-      `data/`, `app/src/scenes/`, `app/public/plates/`, `app/plates.json`, `app/public/audio`, `app/public/data`.
-      Everything stays on `main` (`git show main:<path>`).
+- [x] **Leftovers deleted** (2026-10-01): `audio/pdoom.mp3`, `lyrics/`, `data/`, `analysis/`, `app/src/scenes/`,
+      `app/public/plates/`, `app/plates.json`, `app/public/audio`, `app/public/data`. They're still on `main` (`git show main:<path>`).
 
 ### C4. Finance look ✅
 - [x] Palette = style guide tokens (`palette.ts`, GLSL `C_GOLD`, `C_GAIN`, …, `SERIES` order). `heat()` is now a gold ramp.
@@ -285,5 +285,5 @@ Suggested first full-length topics, in order of visual simplicity: *How Compound
 1. ~~**A1–A4**: fix the git layout, symlinks and GPU flag, then smoke-test.~~ ✅ Done and committed on `finance-channel`.
 2. ~~**B1–B2**: `CLAUDE.md` and `FINANCE_STYLE_GUIDE.md`.~~ ✅ Drafted. Review and edit them.
 3. ~~**B3**: decide on your voice and timestamp tool.~~ ✅ US audience. Both ElevenLabs and own voice are supported.
-4. ~~**C1–C5**: engine generalization.~~ ✅ Done. Remaining: approve deleting the P(doom) leftovers (C3).
+4. ~~**C1–C5**: engine generalization.~~ ✅ Done, including removing the P(doom) leftovers.
 5. **D**: the first 5 components → **E**: the 60-second prototype.

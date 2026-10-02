@@ -5,13 +5,6 @@ node_modules/
 # renders
 out/
 
-# analysis: Python env, model weights, stems and intermediates (regenerable, large)
-analysis/.venv/
-analysis/.cache/
-analysis/__pycache__/
-analysis/stems/
-analysis/work/
-analysis/qa/
 
 # video audio (narration takes, music, mixes): large binaries, kept out of git. Back them up separately
 # (or move them to Git LFS). Everything else in videos/<id>/ is small text and is committed.

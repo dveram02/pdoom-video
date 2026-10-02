@@ -24,10 +24,8 @@ motion blur. The music video's creative content is being replaced.
   - `src/finance/`: finance maths and number formatting (tested: `bun test`).
   - `scripts/render.ts`: offline renderer (headless Chrome → raw frames → FFmpeg).
   - `scripts/narration.ts`: word timings (estimate from the script, ElevenLabs, WhisperX), audio analysis, captions, chapters.
-  - `src/scenes/`: the original music video's scenes, kept as technique reference only (not built).
-- `analysis/`: the original Python alignment tools (reference for the WhisperX path).
-- `audio/`, `lyrics/`, `data/`, `app/public/plates/`: leftovers of the music video (the song and its timings).
-  They're unused, not covered by the MIT license, and must never appear in a published video. They're due to be removed.
+
+The music video's song, scenes and Python analysis tools aren't on this branch. They're on `main`.
 
 ## Requirements
 
